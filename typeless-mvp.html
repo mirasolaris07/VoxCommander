@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typeless MVP — Design Spec & Interactive Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #080810;
+  --surface:   #0f0f1a;
+  --surface2:  #16162a;
+  --surface3:  #1e1e35;
+  --border:    #252540;
+  --border2:   #32325a;
+  --accent:    #4f8eff;
+  --accent-dim:#1e3a7a;
+  --green:     #00e5a0;
+  --green-dim: #003d2a;
+  --red:       #ff4f4f;
+  --red-dim:   #3a0f0f;
+  --amber:     #ffb340;
+  --amber-dim: #3a2800;
+  --text:      #e8e8f8;
+  --text-mid:  #9090b8;
+  --text-dim:  #4a4a72;
+  --mono:      'IBM Plex Mono', monospace;
+  --sans:      'Manrope', sans-serif;
+  --radius:    8px;
+  --radius-lg: 14px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grain texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────── */
+.page { max-width: 1100px; margin: 0 auto; padding: 60px 32px; }
+
+.page-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.page-heading {
+  font-family: var(--mono);
+  font-size: 42px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.page-sub {
+  font-size: 15px;
+  color: var(--text-mid);
+  font-weight: 300;
+  margin-bottom: 60px;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 64px 0 32px;
+}
+.section-divider::before {
+  content: '';
+  width: 3px;
+  height: 24px;
+  background: var(--accent);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.section-divider h2 {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 400;
+}
+.section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── FLOW DIAGRAM ───────────────────────────────────────────────────── */
+.flow-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+.flow-row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 2px;
+}
+
+.flow-actor {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.flow-step {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: none;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  transition: background 0.15s;
+}
+.flow-step:hover { background: var(--surface2); }
+
+.flow-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  width: 20px;
+  flex-shrink: 0;
+}
+.flow-text { font-size: 13px; color: var(--text); font-weight: 500; }
+.flow-detail { font-size: 12px; color: var(--text-dim); margin-left: auto; font-family: var(--mono); }
+
+.flow-branch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.branch-a, .branch-b {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 14px 18px;
+  border-radius: var(--radius);
+  position: relative;
+}
+.branch-a { border-top: 2px solid var(--accent); }
+.branch-b { border-top: 2px solid var(--green); }
+.branch-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.branch-a .branch-label { color: var(--accent); }
+.branch-b .branch-label { color: var(--green); }
+.branch-step {
+  font-size: 12px;
+  color: var(--text-mid);
+  padding: 4px 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.branch-step::before { content: '→'; color: var(--text-dim); flex-shrink: 0; font-family: var(--mono); }
+
+.flow-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 0;
+  color: var(--text-dim);
+  font-size: 18px;
+}
+
+/* ── PROVIDER SELECTOR MOCKUP ───────────────────────────────────────── */
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 24px 0;
+}
+.provider-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  text-align: center;
+}
+.provider-card:hover {
+  border-color: var(--border2);
+  background: var(--surface2);
+  transform: translateY(-2px);
+}
+.provider-card.active {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.provider-card.active::after {
+  content: '✓';
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: 11px;
+  color: var(--accent);
+  font-family: var(--mono);
+}
+.provider-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+  display: block;
+}
+.provider-name {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.provider-model {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+.provider-default {
+  font-size: 10px;
+  color: var(--accent);
+  font-family: var(--mono);
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+}
+
+/* ── HUD MOCKUPS ────────────────────────────────────────────────────── */
+.hud-showcase {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 24px 0;
+}
+.hud-frame {
+  background: #0a0a14;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hud-frame::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(79,142,255,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hud-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* Idle HUD */
+.hud-idle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  width: fit-content;
+}
+.hud-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  flex-shrink: 0;
+}
+.hud-idle-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.hud-shortcut {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 2px 7px;
+  color: var(--text-mid);
+  margin-left: auto;
+}
+
+/* Recording HUD */
+.hud-recording {
+  background: var(--surface2);
+  border: 1px solid rgba(79,142,255,0.35);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  box-shadow: 0 0 20px rgba(79,142,255,0.08);
+}
+.hud-rec-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.rec-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: pulse-red 1s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse-red {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,79,79,0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(255,79,79,0); }
+}
+.hud-rec-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mid);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.hud-timer {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.waveform {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 28px;
+}
+.wave-bar {
+  width: 3px;
+  background: var(--accent);
+  border-radius: 2px;
+  animation: wave 0.8s ease-in-out infinite;
+  opacity: 0.7;
+}
+.wave-bar:nth-child(1)  { animation-delay: 0.0s; height: 40%; }
+.wave-bar:nth-child(2)  { animation-delay: 0.1s; height: 70%; }
+.wave-bar:nth-child(3)  { animation-delay: 0.2s; height: 100%; }
+.wave-bar:nth-child(4)  { animation-delay: 0.15s; height: 60%; }
+.wave-bar:nth-child(5)  { animation-delay: 0.05s; height: 85%; }
+.wave-bar:nth-child(6)  { animation-delay: 0.25s; height: 45%; }
+.wave-bar:nth-child(7)  { animation-delay: 0.1s;  height: 90%; }
+.wave-bar:nth-child(8)  { animation-delay: 0.2s;  height: 55%; }
+.wave-bar:nth-child(9)  { animation-delay: 0.05s; height: 75%; }
+.wave-bar:nth-child(10) { animation-delay: 0.15s; height: 30%; }
+.wave-bar:nth-child(11) { animation-delay: 0.3s;  height: 65%; }
+.wave-bar:nth-child(12) { animation-delay: 0.0s;  height: 80%; }
+@keyframes wave {
+  0%,100% { transform: scaleY(0.4); opacity: 0.5; }
+  50% { transform: scaleY(1); opacity: 1; }
+}
+.hud-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+.hud-hint span { color: var(--text-mid); }
+
+/* Decision HUD — the key UI */
+.hud-decision {
+  background: var(--surface2);
+  border: 1px solid rgba(79,142,255,0.3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(79,142,255,0.1);
+}
+.hud-decision-top {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.transcript-text {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  padding: 10px 0 6px;
+}
+.transcript-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.transcript-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+.hud-decision-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+.action-btn {
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+.action-btn:first-child {
+  border-right: 1px solid var(--border);
+}
+.action-btn:hover { background: var(--surface3); }
+.action-btn.primary:hover { background: rgba(79,142,255,0.08); }
+.action-btn.secondary:hover { background: rgba(0,229,160,0.06); }
+.action-btn-key {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.key-badge {
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 10px;
+  color: var(--text-mid);
+  font-family: var(--mono);
+}
+.action-btn.primary .action-btn-key { color: var(--accent); }
+.action-btn.secondary .action-btn-key { color: var(--green); }
+.action-btn-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.action-btn-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+/* Plan preview */
+.plan-preview {
+  background: var(--surface2);
+  border: 1px solid rgba(0,229,160,0.2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.plan-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.plan-icon { font-size: 14px; }
+.plan-title { font-family: var(--mono); font-size: 12px; color: var(--text-mid); font-weight: 500; }
+.plan-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--green-dim);
+  color: var(--green);
+  padding: 2px 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(0,229,160,0.2);
+}
+.plan-steps {
+  padding: 12px 0;
+}
+.plan-step-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 16px;
+}
+.plan-step-num {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.plan-step-action {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.plan-step-desc { font-size: 12px; color: var(--text-mid); }
+.plan-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+.plan-action-btn {
+  padding: 10px 14px;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  transition: background 0.15s;
+  border: none;
+  background: transparent;
+}
+.plan-action-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.plan-action-btn.run { color: var(--green); }
+.plan-action-btn.run:hover { background: var(--green-dim); }
+.plan-action-btn.edit { color: var(--amber); }
+.plan-action-btn.edit:hover { background: var(--amber-dim); }
+.plan-action-btn.cancel { color: var(--text-dim); }
+.plan-action-btn.cancel:hover { background: var(--surface3); }
+
+/* ── STATE MACHINE ──────────────────────────────────────────────────── */
+.state-machine {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  align-items: start;
+  margin: 24px 0;
+}
+.state-node {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 12px;
+  text-align: center;
+  position: relative;
+}
+.state-node.active { border-color: var(--accent); }
+.state-node.success { border-color: var(--green); }
+.state-node.warn { border-color: var(--amber); }
+.state-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin: 0 auto 8px;
+}
+.state-node.active .state-dot { background: var(--accent); }
+.state-node.success .state-dot { background: var(--green); }
+.state-node.warn .state-dot { background: var(--amber); }
+.state-node:not(.active):not(.success):not(.warn) .state-dot { background: var(--text-dim); }
+.state-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 6px;
+}
+.state-node.active .state-name { color: var(--accent); }
+.state-node.success .state-name { color: var(--green); }
+.state-node.warn .state-name { color: var(--amber); }
+.state-triggers {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.state-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  color: var(--border2);
+  padding-top: 22px;
+}
+
+/* ── INTERACTIVE DEMO ───────────────────────────────────────────────── */
+.demo-container {
+  background: #050508;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+}
+.demo-container::before {
+  content: '';
+  position: absolute;
+  top: -40px; left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 120px;
+  background: radial-gradient(ellipse, rgba(79,142,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.demo-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Live HUD sim */
+#hud-sim {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.sim-idle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 16px;
+  gap: 12px;
+}
+.sim-idle-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); }
+.sim-idle-text { font-family: var(--mono); font-size: 12px; color: var(--text-dim); flex: 1; }
+.sim-key {
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 2px 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mid);
+}
+
+.sim-recording {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid rgba(79,142,255,0.35);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: 0 0 20px rgba(79,142,255,0.06);
+}
+.sim-rec-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sim-rec-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--red);
+  animation: pulse-red 1s ease-in-out infinite;
+}
+.sim-rec-label { font-family: var(--mono); font-size: 11px; color: var(--text-mid); letter-spacing: 0.1em; text-transform: uppercase; }
+.sim-timer { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text-dim); }
+.sim-wave { display: flex; align-items: center; gap: 3px; height: 24px; }
+.sim-bar { width: 3px; background: var(--accent); border-radius: 2px; animation: wave 0.8s ease-in-out infinite; opacity: 0.7; }
+.sim-bar:nth-child(1){animation-delay:0s;height:40%}.sim-bar:nth-child(2){animation-delay:0.1s;height:70%}
+.sim-bar:nth-child(3){animation-delay:0.2s;height:100%}.sim-bar:nth-child(4){animation-delay:0.15s;height:60%}
+.sim-bar:nth-child(5){animation-delay:0.05s;height:85%}.sim-bar:nth-child(6){animation-delay:0.25s;height:45%}
+.sim-bar:nth-child(7){animation-delay:0.1s;height:90%}.sim-bar:nth-child(8){animation-delay:0.2s;height:55%}
+.sim-bar:nth-child(9){animation-delay:0.05s;height:75%}.sim-bar:nth-child(10){animation-delay:0.15s;height:35%}
+.sim-hint { font-family: var(--mono); font-size: 11px; color: var(--text-dim); margin-top: 10px; }
+.sim-hint span { color: var(--text-mid); }
+
+.sim-decision {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid rgba(79,142,255,0.3);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.sim-transcript-wrap {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+}
+.sim-transcript-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.sim-transcript {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+.sim-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.sim-btn {
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+  border: none;
+  background: transparent;
+}
+.sim-btn:first-child { border-right: 1px solid var(--border); }
+.sim-btn:hover { background: var(--surface3); }
+.sim-btn.type-btn:hover { background: rgba(79,142,255,0.08); }
+.sim-btn.plan-btn:hover { background: rgba(0,229,160,0.06); }
+.sim-btn-key { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+.sim-btn.type-btn .sim-btn-key { color: var(--accent); }
+.sim-btn.plan-btn .sim-btn-key { color: var(--green); }
+.sim-btn-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.sim-btn-sub { font-size: 11px; color: var(--text-dim); font-family: var(--mono); margin-top: 2px; }
+
+.sim-plan {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid rgba(0,229,160,0.2);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+}
+.sim-plan-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.sim-plan-title { font-family: var(--mono); font-size: 12px; color: var(--text-mid); font-weight: 500; }
+.sim-plan-badge {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--green-dim);
+  color: var(--green);
+  padding: 2px 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(0,229,160,0.2);
+}
+.sim-plan-steps { padding: 8px 0; }
+.sim-plan-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 16px;
+}
+.sim-step-n {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  flex-shrink: 0;
+}
+.sim-step-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 2px 7px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.sim-step-desc { font-size: 12px; color: var(--text-mid); }
+.sim-plan-btns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+.sim-plan-btn {
+  padding: 10px 14px;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  transition: background 0.15s;
+  border: none;
+  background: transparent;
+}
+.sim-plan-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.sim-plan-btn.run { color: var(--green); }
+.sim-plan-btn.run:hover { background: var(--green-dim); }
+.sim-plan-btn.discard { color: var(--text-dim); }
+.sim-plan-btn.discard:hover { background: var(--surface3); }
+.sim-plan-btn.retry { color: var(--amber); }
+.sim-plan-btn.retry:hover { background: var(--amber-dim); }
+
+.sim-typed {
+  display: none;
+  background: var(--surface2);
+  border: 1px solid rgba(0,229,160,0.3);
+  border-radius: var(--radius-lg);
+  padding: 14px 18px;
+  animation: fadeIn 0.3s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }
+.sim-typed-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.sim-typed-check { color: var(--green); font-size: 16px; }
+.sim-typed-label { font-family: var(--mono); font-size: 11px; color: var(--green); text-transform: uppercase; letter-spacing: 0.1em; }
+.sim-typed-text { font-family: var(--mono); font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+.sim-restart {
+  display: inline-block;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 10px;
+  background: none;
+  transition: all 0.15s;
+}
+.sim-restart:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Demo controls */
+.demo-controls {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.demo-ctrl-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mid);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.demo-ctrl-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.demo-ctrl-btn.active { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+/* ── SPEC TABLE ─────────────────────────────────────────────────────── */
+.spec-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.spec-table th {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 500;
+  text-align: left;
+}
+.spec-table td {
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text-mid);
+  background: var(--surface);
+  vertical-align: top;
+}
+.spec-table tr:nth-child(even) td { background: var(--surface2); }
+.spec-table td:first-child { font-family: var(--mono); font-size: 12px; color: var(--text); font-weight: 500; }
+.tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-right: 4px;
+}
+.tag-core { background: rgba(0,229,160,0.12); color: var(--green); border: 1px solid rgba(0,229,160,0.2); }
+.tag-mvp  { background: rgba(79,142,255,0.12); color: var(--accent); border: 1px solid rgba(79,142,255,0.2); }
+.tag-addon{ background: rgba(255,179,64,0.12); color: var(--amber); border: 1px solid rgba(255,179,64,0.2); }
+
+/* ── PROVIDER KEY INPUT ─────────────────────────────────────────────── */
+.key-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin: 8px 0;
+}
+.key-input-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  width: 100px;
+  flex-shrink: 0;
+}
+.key-input-value {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-mid);
+  flex: 1;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 5px;
+  padding: 4px 10px;
+  letter-spacing: 0.1em;
+}
+.key-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.key-status.set { background: var(--green-dim); color: var(--green); }
+.key-status.unset { background: var(--red-dim); color: var(--red); }
+
+/* ── TRAY SPEC ──────────────────────────────────────────────────────── */
+.tray-states {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.tray-state {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 14px;
+  text-align: center;
+}
+.tray-icon-sim {
+  width: 32px; height: 32px;
+  border-radius: 7px;
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.tray-state-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-mid);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.tray-state-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  .hud-showcase, .provider-grid, .state-machine, .tray-states { grid-template-columns: 1fr; }
+  .flow-branch { grid-template-columns: 1fr; }
+  .state-arrow { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="page-title">Typeless · MVP Design Specification</div>
+
+  <!-- ⚠ ARCHITECTURE NOTE: Single-hotkey model — SUPERSEDED by dual-hotkey v2 -->
+  <div style="background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.3);border-radius:10px;padding:16px 20px;margin:16px 0 24px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF4757;font-weight:700;margin-bottom:6px;">⚠ PROTOTYPE v1 — SINGLE-HOTKEY MODEL (SUPERSEDED)</div>
+    <div style="font-size:12px;color:#B0B0D8;line-height:1.7;">
+      This prototype uses a <b>single-hotkey model</b> with a post-transcription DECIDING state (Enter=type, Tab=plan). The implemented design uses a <b>dual-hotkey model</b> — intent is chosen <em>before</em> speaking.<br><br>
+      <span style="font-family:'JetBrains Mono',monospace;color:#3D8EFF;">Alt+Space</span> → dictate → idle → recording → transcribing → typed<br>
+      <span style="font-family:'JetBrains Mono',monospace;color:#FFB627;">Alt+⇧+Space</span> → plan → idle → recording → transcribing → planning → planReady<br><br>
+      <b>Obsolete in this prototype:</b> DECIDING state · Enter/T · Tab/P · 8s auto-type · G=Retry in plan preview<br>
+      <b>Correct reference for implementation:</b> <code>typeless-design-system.html</code> v2.0
+    </div>
+  </div>
+  <div class="page-heading">typeless</div>
+  <div class="page-sub">Voice → Text or Plan · Background Agent · Multi-Provider · v1.0 MVP</div>
+
+  <!-- ══ SECTION: THE CORE DECISION MOMENT ════════════════════════════ -->
+  <div class="section-divider"><h2>The Core UX Insight</h2></div>
+
+  <p style="color:var(--text-mid);font-size:14px;line-height:1.8;max-width:720px;margin-bottom:24px;">
+    After transcription, the user faces one decision: <strong style="color:var(--text)">type it at my cursor</strong> or <strong style="color:var(--text)">build a plan and execute it</strong>.
+    This is the entire UX. Everything else serves this moment.
+    The HUD must make this choice feel instant, natural, and never require a mouse.
+  </p>
+
+  <!-- Decision HUD full mockup -->
+  <div class="hud-decision" style="max-width:500px;">
+    <div class="hud-decision-top">
+      <div class="transcript-label">Transcribed <span style="color:var(--accent);font-size:10px;margin-left:auto;">gemini-2.0-flash · 0.8s</span></div>
+      <div class="transcript-text">"open Slack and send a message to the team channel saying the build is ready"</div>
+    </div>
+    <div class="hud-decision-actions">
+      <button class="action-btn primary">
+        <div class="action-btn-key"><span class="key-badge">Enter</span> or <span class="key-badge">T</span></div>
+        <div class="action-btn-text">Type at cursor</div>
+        <div class="action-btn-sub">paste as-is into focused field</div>
+      </button>
+      <button class="action-btn secondary">
+        <div class="action-btn-key"><span class="key-badge">Tab</span> or <span class="key-badge">P</span></div>
+        <div class="action-btn-text">Build a plan</div>
+        <div class="action-btn-sub">AI breaks this into steps</div>
+      </button>
+    </div>
+  </div>
+
+  <p style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-top:12px;max-width:500px;">
+    ↑ This appears at bottom-center of screen, ~300ms after recording stops. Auto-dismisses after 8s (types if no input).
+    Escape cancels. Never steals focus from the target app.
+  </p>
+
+  <!-- ══ SECTION: STATE MACHINE ════════════════════════════════════════ -->
+  <div class="section-divider"><h2>HUD State Machine</h2></div>
+
+  <div class="state-machine">
+    <div class="state-node">
+      <div class="state-dot"></div>
+      <div class="state-name">IDLE</div>
+      <div class="state-triggers">Tiny pill in corner.<br>Shows hotkey hint.<br>Fully transparent.</div>
+    </div>
+    <div class="state-arrow">→</div>
+    <div class="state-node active">
+      <div class="state-dot"></div>
+      <div class="state-name">RECORDING</div>
+      <div class="state-triggers">Waveform visible.<br>Timer counting.<br>Release = stop.</div>
+    </div>
+    <div class="state-arrow">→</div>
+    <div class="state-node warn">
+      <div class="state-dot"></div>
+      <div class="state-name">DECIDING</div>
+      <div class="state-triggers">Transcript shown.<br>Type or Plan.<br>8s auto-type.</div>
+    </div>
+    <div class="state-arrow" style="grid-column:span 1">→</div>
+    <div class="state-node success">
+      <div class="state-dot"></div>
+      <div class="state-name">DONE</div>
+      <div class="state-triggers">Green flash.<br>Text typed or<br>plan launched.</div>
+    </div>
+  </div>
+
+  <!-- Second row for plan path -->
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-top:2px;align-items:start;">
+    <div></div><div></div>
+    <div style="text-align:center;padding:4px 0;font-family:var(--mono);font-size:11px;color:var(--text-dim);">↓ if Plan chosen</div>
+    <div></div><div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:2px;align-items:start;">
+    <div></div><div></div>
+    <div class="state-node" style="border-color:var(--green);background:var(--green-dim);">
+      <div class="state-dot" style="background:var(--green);"></div>
+      <div class="state-name" style="color:var(--green);">PLANNING</div>
+      <div class="state-triggers">AI generates steps.<br>Spinner in HUD.<br>~2–4 seconds.</div>
+    </div>
+    <div class="state-arrow">→</div>
+    <div class="state-node" style="border-color:var(--green);">
+      <div class="state-dot" style="background:var(--green);"></div>
+      <div class="state-name" style="color:var(--green);">PLAN REVIEW</div>
+      <div class="state-triggers">Steps listed.<br>Run / Edit / Cancel.<br>User confirms.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION: COMPLETE FLOW ════════════════════════════════════════ -->
+  <div class="section-divider"><h2>Complete Interaction Flow</h2></div>
+
+  <div class="flow-grid">
+    <div class="flow-row">
+      <div class="flow-actor">User</div>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-text">Press and hold <strong>Alt+Space</strong> from any application</div>
+        <div class="flow-detail">OS focus stays on target app</div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-row">
+      <div class="flow-actor">Tray / HUD</div>
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-text">HUD snaps from idle pill → recording state. Waveform animates. Timer starts.</div>
+        <div class="flow-detail">&lt;100ms response</div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-row">
+      <div class="flow-actor">Recorder</div>
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-text">Mic stream opens at 16kHz mono. PCM buffered in memory.</div>
+        <div class="flow-detail">node-record-lpcm16</div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-row">
+      <div class="flow-actor">User</div>
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-text">Speaks. Releases <strong>Alt+Space</strong> when done.</div>
+        <div class="flow-detail">OR: silence auto-stops after 1.5s</div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-row">
+      <div class="flow-actor">Transcriber</div>
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-text">WAV encoded → sent to <strong>Gemini Flash</strong> (default). Returns text string.</div>
+        <div class="flow-detail">~600–1500ms typical</div>
+      </div>
+    </div>
+    <div class="flow-arrow">↓</div>
+    <div class="flow-row">
+      <div class="flow-actor">HUD</div>
+      <div class="flow-step">
+        <div class="flow-num">6</div>
+        <div class="flow-text">
+          <strong>DECISION STATE</strong> — transcription shown. Two choices appear.
+        </div>
+        <div class="flow-detail">8s timeout → auto-types</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin: 8px 0 8px 120px;">
+    <div class="flow-branch">
+      <div class="branch-a">
+        <div class="branch-label">⌥ Path A — Type at Cursor</div>
+        <div class="branch-step">User presses <strong>Enter</strong> or <strong>T</strong></div>
+        <div class="branch-step">HUD flashes green "Typing…"</div>
+        <div class="branch-step">nut-js keyboard.type() sends text to OS focus</div>
+        <div class="branch-step">HUD shows "✓ Typed" for 2s then returns to idle pill</div>
+        <div class="branch-step" style="color:var(--accent);">Total from release: ~1–2s</div>
+      </div>
+      <div class="branch-b">
+        <div class="branch-label">⌥ Path B — Build a Plan</div>
+        <div class="branch-step">User presses <strong>Tab</strong> or <strong>P</strong></div>
+        <div class="branch-step">HUD shows spinner "Planning with Gemini…"</div>
+        <div class="branch-step">LLM generates JSON step plan (~2–4s)</div>
+        <div class="branch-step">Plan preview shown with numbered steps</div>
+        <div class="branch-step">Run / Edit / Cancel buttons</div>
+        <div class="branch-step">User presses <strong>R</strong> to run or <strong>Esc</strong> to cancel</div>
+        <div class="branch-step" style="color:var(--green);">MVP: plan is shown, execution is Phase 2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION: INTERACTIVE DEMO ════════════════════════════════════ -->
+  <div class="section-divider"><h2>Interactive HUD Demo</h2></div>
+
+  <div class="demo-container">
+    <div class="demo-label">Live HUD Simulation — click to walk through states</div>
+
+    <div id="hud-sim">
+
+      <!-- State: Idle -->
+      <div id="state-idle" class="sim-idle">
+        <div class="sim-idle-dot"></div>
+        <div class="sim-idle-text">typeless · ready</div>
+        <div class="sim-key">Alt+Space</div>
+      </div>
+
+      <!-- State: Recording -->
+      <div id="state-recording" class="sim-recording">
+        <div class="sim-rec-row">
+          <div class="sim-rec-dot"></div>
+          <div class="sim-rec-label">Recording</div>
+          <div class="sim-timer" id="sim-timer">0:00</div>
+        </div>
+        <div class="sim-wave">
+          <div class="sim-bar"></div><div class="sim-bar"></div><div class="sim-bar"></div>
+          <div class="sim-bar"></div><div class="sim-bar"></div><div class="sim-bar"></div>
+          <div class="sim-bar"></div><div class="sim-bar"></div><div class="sim-bar"></div>
+          <div class="sim-bar"></div>
+        </div>
+        <div class="sim-hint">Release <span>Alt+Space</span> to stop · <span>Esc</span> to cancel</div>
+      </div>
+
+      <!-- State: Decision -->
+      <div id="state-decision" class="sim-decision">
+        <div class="sim-transcript-wrap">
+          <div class="sim-transcript-label">Transcribed · gemini-2.0-flash · 0.9s</div>
+          <div class="sim-transcript" id="sim-transcript-text">"open Slack and tell the team the deploy is done"</div>
+        </div>
+        <div class="sim-buttons">
+          <button class="sim-btn type-btn" onclick="simType()">
+            <div class="sim-btn-key">↵ Enter · T</div>
+            <div class="sim-btn-label">Type at cursor</div>
+            <div class="sim-btn-sub">paste text as-is</div>
+          </button>
+          <button class="sim-btn plan-btn" onclick="simPlan()">
+            <div class="sim-btn-key">⇥ Tab · P</div>
+            <div class="sim-btn-label">Build a plan</div>
+            <div class="sim-btn-sub">AI executes steps</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- State: Plan Preview -->
+      <div id="state-plan" class="sim-plan">
+        <div class="sim-plan-header">
+          <span class="plan-icon">⚡</span>
+          <span class="sim-plan-title">Plan ready · 4 steps</span>
+          <span class="sim-plan-badge">gemini-2.0-flash</span>
+        </div>
+        <div class="sim-plan-steps">
+          <div class="sim-plan-row">
+            <div class="sim-step-n">1</div>
+            <div class="sim-step-tag">openApp</div>
+            <div class="sim-step-desc">Focus or launch Slack</div>
+          </div>
+          <div class="sim-plan-row">
+            <div class="sim-step-n">2</div>
+            <div class="sim-step-tag">clickElement</div>
+            <div class="sim-step-desc">Click #team-general channel</div>
+          </div>
+          <div class="sim-plan-row">
+            <div class="sim-step-n">3</div>
+            <div class="sim-step-tag">clickElement</div>
+            <div class="sim-step-desc">Click message input field</div>
+          </div>
+          <div class="sim-plan-row">
+            <div class="sim-step-n">4</div>
+            <div class="sim-step-tag">type</div>
+            <div class="sim-step-desc">"the deploy is done" + Enter</div>
+          </div>
+        </div>
+        <div class="sim-plan-btns">
+          <button class="sim-plan-btn run" onclick="simRunPlan()">▶ Run  [R]</button>
+          <button class="sim-plan-btn retry" onclick="simRetry()">✎ Edit  [E]</button>
+          <button class="sim-plan-btn discard" onclick="simCancel()">✕ Cancel  [Alt+⇧+Esc]</button>
+        </div>
+      </div>
+
+      <!-- State: Done (typed) -->
+      <div id="state-typed" class="sim-typed">
+        <div class="sim-typed-row">
+          <span class="sim-typed-check">✓</span>
+          <span class="sim-typed-label">Typed at cursor</span>
+        </div>
+        <div class="sim-typed-text">"open Slack and tell the team the deploy is done"</div>
+        <button class="sim-restart" onclick="simReset()">↺ Reset demo</button>
+      </div>
+
+      <!-- State: Plan running (MVP shows this as coming soon) -->
+      <div id="state-running" style="display:none;background:var(--surface2);border:1px solid rgba(0,229,160,0.3);border-radius:var(--radius-lg);padding:16px 18px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+          <div style="width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse-red 1s ease-in-out infinite;"></div>
+          <span style="font-family:var(--mono);font-size:11px;color:var(--green);text-transform:uppercase;letter-spacing:0.1em;">Plan Execution</span>
+          <span style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text-dim);">Phase 2 addon</span>
+        </div>
+        <div style="font-size:12px;color:var(--text-dim);font-family:var(--mono);">Execution engine ships in Phase 2.<br>MVP generates and previews the plan — you run it manually.</div>
+        <button class="sim-restart" style="margin-top:10px;" onclick="simReset()">↺ Reset demo</button>
+      </div>
+
+    </div>
+
+    <div class="demo-controls">
+      <button class="demo-ctrl-btn active" id="ctrl-idle" onclick="showState('idle')">① Idle</button>
+      <button class="demo-ctrl-btn" id="ctrl-recording" onclick="showState('recording')">② Recording</button>
+      <button class="demo-ctrl-btn" id="ctrl-decision" onclick="showState('decision')">③ Decision</button>
+      <button class="demo-ctrl-btn" id="ctrl-plan" onclick="showState('plan')">④ Plan Preview</button>
+      <button class="demo-ctrl-btn" id="ctrl-typed" onclick="showState('typed')">⑤ Typed ✓</button>
+    </div>
+  </div>
+
+  <!-- ══ SECTION: HUD ALL STATES ═══════════════════════════════════════ -->
+  <div class="section-divider"><h2>All HUD States</h2></div>
+
+  <div class="hud-showcase">
+    <!-- Idle -->
+    <div class="hud-frame">
+      <div class="hud-label">State 1 — Idle (always visible, non-intrusive)</div>
+      <div class="hud-idle">
+        <div class="hud-dot"></div>
+        <div class="hud-idle-text">typeless · ready</div>
+        <div class="hud-shortcut">Alt+Space</div>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-top:12px;">
+        Pinned to bottom-right corner. 24px height. Fully transparent background option. Click-through — never blocks mouse.
+      </p>
+    </div>
+
+    <!-- Recording -->
+    <div class="hud-frame">
+      <div class="hud-label">State 2 — Recording</div>
+      <div class="hud-recording">
+        <div class="hud-rec-header">
+          <div class="rec-dot"></div>
+          <div class="hud-rec-label">Recording</div>
+          <div class="hud-timer">0:04</div>
+        </div>
+        <div class="waveform">
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+          <div class="wave-bar"></div><div class="wave-bar"></div><div class="wave-bar"></div>
+        </div>
+        <div class="hud-hint">Release <span>Alt+Space</span> to stop · <span>Esc</span> to cancel</div>
+      </div>
+    </div>
+
+    <!-- Decision -->
+    <div class="hud-frame">
+      <div class="hud-label">State 3 — Decision (the key moment)</div>
+      <div class="hud-decision">
+        <div class="hud-decision-top">
+          <div class="transcript-label">Transcribed <span style="color:var(--accent);font-size:10px;margin-left:4px;">· 0.9s</span></div>
+          <div class="transcript-text">"draft a reply to John's email saying I'll review it tomorrow"</div>
+        </div>
+        <div class="hud-decision-actions">
+          <button class="action-btn primary">
+            <div class="action-btn-key"><span class="key-badge">↵</span> <span class="key-badge">T</span></div>
+            <div class="action-btn-text">Type at cursor</div>
+            <div class="action-btn-sub">pastes text as-is</div>
+          </button>
+          <button class="action-btn secondary">
+            <div class="action-btn-key"><span class="key-badge">⇥</span> <span class="key-badge">P</span></div>
+            <div class="action-btn-text">Build a plan</div>
+            <div class="action-btn-sub">AI breaks into steps</div>
+          </button>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text-dim);font-family:var(--mono);margin-top:10px;">Auto-types after 8s of no input. Countdown visible in corner.</p>
+    </div>
+
+    <!-- Plan Preview -->
+    <div class="hud-frame">
+      <div class="hud-label">State 4 — Plan Preview</div>
+      <div class="plan-preview">
+        <div class="plan-header">
+          <span class="plan-icon">⚡</span>
+          <span class="plan-title">Plan · 3 steps · gemini-2.0-flash</span>
+          <span class="plan-badge">ready</span>
+        </div>
+        <div class="plan-steps">
+          <div class="plan-step-row">
+            <div class="plan-step-num">1</div>
+            <div class="plan-step-action">focusWindow</div>
+            <div class="plan-step-desc">Bring Outlook to front</div>
+          </div>
+          <div class="plan-step-row">
+            <div class="plan-step-num">2</div>
+            <div class="plan-step-action">clickElement</div>
+            <div class="plan-step-desc">Click John's email → Reply</div>
+          </div>
+          <div class="plan-step-row">
+            <div class="plan-step-num">3</div>
+            <div class="plan-step-action">type</div>
+            <div class="plan-step-desc">"I'll review it tomorrow"</div>
+          </div>
+        </div>
+        <div class="plan-actions">
+          <button class="plan-action-btn run">▶ Run  [R]</button>
+          <button class="plan-action-btn edit">✎ Edit  [E]</button>
+          <button class="plan-action-btn cancel">✕ Cancel  [Alt+⇧+Esc]</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION: PROVIDER SELECTION ══════════════════════════════════ -->
+  <div class="section-divider"><h2>AI Provider Selection</h2></div>
+
+  <p style="color:var(--text-mid);font-size:13px;margin-bottom:20px;max-width:640px;">
+    Default provider is <strong style="color:var(--accent)">Gemini 2.0 Flash</strong> — fastest response, generous free tier, best for transcription cost.
+    User can switch at any time from Settings or the tray menu.
+  </p>
+
+  <div class="provider-grid">
+    <div class="provider-card active" onclick="selectProvider(this)">
+      <span class="provider-icon">🟦</span>
+      <div class="provider-name">Gemini</div>
+      <div class="provider-model">gemini-2.0-flash</div>
+      <div class="provider-default">DEFAULT</div>
+    </div>
+    <div class="provider-card" onclick="selectProvider(this)">
+      <span class="provider-icon">⚫</span>
+      <div class="provider-name">Grok</div>
+      <div class="provider-model">grok-2-latest</div>
+    </div>
+    <div class="provider-card" onclick="selectProvider(this)">
+      <span class="provider-icon">🟢</span>
+      <div class="provider-name">OpenAI</div>
+      <div class="provider-model">gpt-4o-mini</div>
+    </div>
+    <div class="provider-card" onclick="selectProvider(this)">
+      <span class="provider-icon">🟠</span>
+      <div class="provider-name">Claude</div>
+      <div class="provider-model">claude-haiku-4</div>
+    </div>
+  </div>
+
+  <p style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-bottom:20px;">
+    Provider selection applies to: transcription (if using AI transcription) and plan generation. Each provider requires its own API key in .env.
+  </p>
+
+  <div class="key-input-row">
+    <div class="key-input-label">GEMINI_API_KEY</div>
+    <div class="key-input-value">••••••••••••••••••••••••••••••••</div>
+    <span class="key-status set">SET</span>
+  </div>
+  <div class="key-input-row">
+    <div class="key-input-label">GROK_API_KEY</div>
+    <div class="key-input-value">not set</div>
+    <span class="key-status unset">UNSET</span>
+  </div>
+  <div class="key-input-row">
+    <div class="key-input-label">OPENAI_API_KEY</div>
+    <div class="key-input-value">not set</div>
+    <span class="key-status unset">UNSET</span>
+  </div>
+  <div class="key-input-row">
+    <div class="key-input-label">ANTHROPIC_API_KEY</div>
+    <div class="key-input-value">not set</div>
+    <span class="key-status unset">UNSET</span>
+  </div>
+
+  <!-- ══ SECTION: TRAY ICON STATES ════════════════════════════════════ -->
+  <div class="section-divider"><h2>Tray Icon States</h2></div>
+
+  <div class="tray-states">
+    <div class="tray-state">
+      <div class="tray-icon-sim" style="background:#1e1e35;">🎙</div>
+      <div class="tray-state-name">Idle</div>
+      <div class="tray-state-desc">Static. Dim microphone glyph. No animation.</div>
+    </div>
+    <div class="tray-state" style="border-color:var(--red);">
+      <div class="tray-icon-sim" style="background:#3a0f0f;">🔴</div>
+      <div class="tray-state-name" style="color:var(--red);">Recording</div>
+      <div class="tray-state-desc">Red pulse animation. Timer in tooltip.</div>
+    </div>
+    <div class="tray-state" style="border-color:var(--accent);">
+      <div class="tray-icon-sim" style="background:#1e3a7a;">⚡</div>
+      <div class="tray-state-name" style="color:var(--accent);">Processing</div>
+      <div class="tray-state-desc">Blue spinner. Transcribing or planning.</div>
+    </div>
+    <div class="tray-state" style="border-color:var(--amber);">
+      <div class="tray-icon-sim" style="background:#3a2800;">⚠</div>
+      <div class="tray-state-name" style="color:var(--amber);">Error</div>
+      <div class="tray-state-desc">Amber. Click to see error details.</div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION: MVP SCOPE ════════════════════════════════════════════ -->
+  <div class="section-divider"><h2>MVP Scope — What Ships vs. What's Addon</h2></div>
+
+  <table class="spec-table">
+    <thead>
+      <tr><th>Feature</th><th>Scope</th><th>Notes</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Global hotkey (Alt+Space)</td><td><span class="tag tag-mvp">MVP</span></td><td>Configurable in settings</td></tr>
+      <tr><td>Mic recording (push-to-talk)</td><td><span class="tag tag-mvp">MVP</span></td><td>node-record-lpcm16 + SoX</td></tr>
+      <tr><td>Transcription via Gemini</td><td><span class="tag tag-mvp">MVP</span></td><td>Default. Whisper local = addon</td></tr>
+      <tr><td>Multi-provider selection (Gemini/Grok/OpenAI/Claude)</td><td><span class="tag tag-mvp">MVP</span></td><td>Config + .env key per provider</td></tr>
+      <tr><td>Decision HUD (Type or Plan)</td><td><span class="tag tag-mvp">MVP</span></td><td>The core UX moment</td></tr>
+      <tr><td>Type at cursor (nut-js)</td><td><span class="tag tag-mvp">MVP</span></td><td>Instant path — no plan needed</td></tr>
+      <tr><td>Plan generation + preview</td><td><span class="tag tag-mvp">MVP</span></td><td>Shows steps — execution is addon</td></tr>
+      <tr><td>System tray icon + 4 states</td><td><span class="tag tag-mvp">MVP</span></td><td>Tray menu: Settings, History, Quit</td></tr>
+      <tr><td>Settings UI (hotkey, provider, API keys)</td><td><span class="tag tag-mvp">MVP</span></td><td>Minimal settings panel</td></tr>
+      <tr><td>Onboarding wizard (first run)</td><td><span class="tag tag-mvp">MVP</span></td><td>API key entry + hotkey test</td></tr>
+      <tr><td>.env + app.config.json separation</td><td><span class="tag tag-mvp">MVP</span></td><td>Security from day 1</td></tr>
+      <tr><td>Operational logging (electron-log)</td><td><span class="tag tag-mvp">MVP</span></td><td>No sensitive values ever logged</td></tr>
+      <tr><td>Plan execution (step runner)</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 2 — window control + nut-js</td></tr>
+      <tr><td>Window manager (Win32 FFI)</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 2</td></tr>
+      <tr><td>Screenshot + vision model</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 3</td></tr>
+      <tr><td>Ctrl+A / Ctrl+C text capture</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 3</td></tr>
+      <tr><td>Credential vault (keytar)</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 2</td></tr>
+      <tr><td>Scheduler / cron tasks</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 4</td></tr>
+      <tr><td>Analytics / telemetry</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 3 — opt-in only</td></tr>
+      <tr><td>Continuous/always-on listen</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 4 — accessibility</td></tr>
+      <tr><td>Local Whisper (offline)</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 3</td></tr>
+      <tr><td>TTS readback</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 4</td></tr>
+      <tr><td>Cross-platform (macOS/Linux)</td><td><span class="tag tag-addon">ADDON</span></td><td>Phase 5</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ══ SECTION: UX DESIGN RULES ═════════════════════════════════════ -->
+  <div class="section-divider"><h2>UX Design Rules</h2></div>
+
+  <table class="spec-table">
+    <thead>
+      <tr><th>Rule</th><th>Behaviour</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Never steal focus</td><td>The HUD is always-on-top but click-through. It never takes keyboard focus from the target application. Keyboard shortcuts in the HUD work via global key listener, not focus.</td></tr>
+      <tr><td>Keyboard-first, always</td><td>Every HUD action has a keyboard shortcut. Mouse is optional. Enter=type, Tab=plan, R=run, G=retry, Esc=cancel. Learnable in one session.</td></tr>
+      <tr><td>8-second auto-type</td><td>If user does nothing at the Decision screen, it auto-types after 8 seconds. Countdown shown. Prevents orphaned HUDs.</td></tr>
+      <tr><td>Escape always cancels</td><td>Pressing Escape at any state returns to idle. No confirmation. Clean and fast.</td></tr>
+      <tr><td>Transcription always shown</td><td>User always sees what was transcribed before any action. No surprises.</td></tr>
+      <tr><td>Provider shown in HUD</td><td>Which provider and model produced the result is always shown (e.g., "gemini-2.0-flash · 0.9s"). Builds trust and helps debugging.</td></tr>
+      <tr><td>Plan steps are readable</td><td>Each plan step shows the action type (in accent colour) and a plain-English description. No JSON exposed to user.</td></tr>
+      <tr><td>Errors are recoverable</td><td>Any error (transcription fail, API timeout, type fail) shows a retry button. Never a dead end.</td></tr>
+      <tr><td>HUD position is configurable</td><td>Bottom-center (default), bottom-right, or top-center. User sets once and forgets.</td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:60px;padding-top:32px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">typeless · MVP Design Spec · v1.0</div>
+    <div style="font-family:var(--mono);font-size:11px;color:var(--text-dim)">Default: Gemini 2.0 Flash · Windows · Node.js + Electron</div>
+  </div>
+
+</div>
+
+<script>
+// ── Provider selection ────────────────────────────────────────────────
+function selectProvider(card) {
+  document.querySelectorAll('.provider-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+}
+
+// ── HUD Demo state machine ────────────────────────────────────────────
+const states = ['idle','recording','decision','plan','typed'];
+let timerInterval = null;
+let timerSecs = 0;
+
+function showState(name) {
+  states.forEach(s => {
+    const el = document.getElementById('state-' + s);
+    if (el) el.style.display = 'none';
+  });
+  document.getElementById('state-running') && (document.getElementById('state-running').style.display = 'none');
+
+  const el = document.getElementById('state-' + name);
+  if (el) el.style.display = name === 'idle' ? 'flex' : name === 'recording' ? 'block' : 'block';
+
+  // Update control buttons
+  document.querySelectorAll('.demo-ctrl-btn').forEach(b => b.classList.remove('active'));
+  const ctrl = document.getElementById('ctrl-' + name);
+  if (ctrl) ctrl.classList.add('active');
+
+  // Timer
+  if (timerInterval) { clearInterval(timerInterval); timerSecs = 0; }
+  if (name === 'recording') {
+    timerInterval = setInterval(() => {
+      timerSecs++;
+      const m = Math.floor(timerSecs/60);
+      const s = timerSecs % 60;
+      const el = document.getElementById('sim-timer');
+      if (el) el.textContent = m + ':' + String(s).padStart(2,'0');
+    }, 1000);
+  }
+}
+
+function simType() {
+  document.getElementById('state-decision').style.display = 'none';
+  document.getElementById('state-typed').style.display = 'block';
+  document.getElementById('ctrl-decision').classList.remove('active');
+  document.getElementById('ctrl-typed').classList.add('active');
+}
+
+function simPlan() {
+  document.getElementById('state-decision').style.display = 'none';
+  document.getElementById('state-plan').style.display = 'block';
+  document.getElementById('ctrl-decision').classList.remove('active');
+  document.getElementById('ctrl-plan').classList.add('active');
+}
+
+function simRunPlan() {
+  document.getElementById('state-plan').style.display = 'none';
+  document.getElementById('state-running').style.display = 'block';
+  document.getElementById('ctrl-plan').classList.remove('active');
+}
+
+function simRetry() {
+  // Flash the plan badge
+  const badge = document.querySelector('.sim-plan-badge');
+  if (badge) {
+    badge.textContent = 'retrying…';
+    badge.style.color = 'var(--amber)';
+    setTimeout(() => {
+      badge.textContent = 'gemini-2.0-flash';
+      badge.style.color = 'var(--green)';
+    }, 1200);
+  }
+}
+
+function simCancel() {
+  showState('idle');
+}
+
+function simReset() {
+  showState('idle');
+}
+
+// Keyboard shortcuts for demo
+document.addEventListener('keydown', e => {
+  const active = document.querySelector('.demo-ctrl-btn.active');
+  if (!active) return;
+
+  if (e.key === 'ArrowRight' || e.key === 'Tab') {
+    e.preventDefault();
+    const currentState = active.id.replace('ctrl-','');
+    const idx = states.indexOf(currentState);
+    if (idx < states.length - 1) showState(states[idx+1]);
+  }
+  if (e.key === 'ArrowLeft') {
+    const currentState = active.id.replace('ctrl-','');
+    const idx = states.indexOf(currentState);
+    if (idx > 0) showState(states[idx-1]);
+  }
+  if (e.key === 'Escape') showState('idle');
+});
+
+// Init
+showState('idle');
+</script>
+</body>
+</html>

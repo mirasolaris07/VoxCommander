@@ -1,0 +1,27 @@
+{
+  "name": "typeless",
+  "version": "0.1.0",
+  "description": "Voice-to-text + AI desktop automation agent",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --inspect"
+  },
+  "keywords": ["electron", "voice", "automation", "ai"],
+  "author": "Typeless",
+  "license": "MIT",
+  "dependencies": {
+    "@nut-tree-fork/nut-js": "^4.2.0",
+    "ajv": "^8.17.1",
+    "dotenv": "^16.4.5",
+    "electron-log": "^5.2.0",
+    "electron-store": "^8.1.0",
+    "keytar": "^7.9.0",
+    "nanoid": "^3.3.7",
+    "node-record-lpcm16": "^1.0.1",
+    "screenshot-desktop": "^1.12.7"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0"
+  }
+}

@@ -1,0 +1,375 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "app.config.schema.json",
+  "title": "Typeless App Config",
+  "description": "AJV schema for the merged runtime config (defaults + user overrides). additionalProperties:false rejects unknown keys at every level.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "hotkey": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dictate": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Alt+Space",
+          "description": "Electron accelerator string for the dictate hotkey"
+        },
+        "plan": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Alt+Shift+Space",
+          "description": "Electron accelerator string for the plan hotkey"
+        },
+        "abort": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Alt+Shift+Escape",
+          "description": "Electron accelerator string for the global abort hotkey — no-op when idle"
+        },
+        "undo": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Alt+Z",
+          "description": "Electron accelerator string for the timed undo hotkey (10 s window)"
+        }
+      }
+    },
+    "voice": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "enum": ["gemini", "openai", "grok", "claude", "local"],
+          "default": "gemini",
+          "description": "AI provider used for speech-to-text transcription"
+        },
+        "language": {
+          "type": "string",
+          "minLength": 2,
+          "default": "en",
+          "description": "BCP-47 language tag forwarded to the transcription API (e.g. en, en-US)"
+        },
+        "silenceThresholdMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 10000,
+          "default": 1500,
+          "description": "Milliseconds of silence before auto-stop while recording"
+        },
+        "continuousMode": {
+          "type": "boolean",
+          "default": false,
+          "description": "Addon: keep recording after first silence (step 61)"
+        },
+        "maxRecordingSeconds": {
+          "type": "integer",
+          "minimum": 5,
+          "maximum": 300,
+          "default": 60,
+          "description": "Hard auto-stop guard in seconds regardless of silence detection"
+        },
+        "trailingMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000,
+          "default": 200,
+          "description": "Extra capture window after key release before SoX is killed, to avoid cutting off the last syllable"
+        },
+        "minRecordingMs": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 5000,
+          "default": 500,
+          "description": "Minimum recording duration in ms — shorter recordings are rejected with EMPTY_TRANSCRIPT shown in HUD"
+        },
+        "geminiModel": {
+          "type": "string",
+          "minLength": 1,
+          "default": "gemini-2.5-flash-lite",
+          "description": "Gemini model used for audio transcription"
+        },
+        "openaiModel": {
+          "type": "string",
+          "minLength": 1,
+          "default": "whisper-1",
+          "description": "OpenAI model used for audio transcription"
+        },
+        "grokModel": {
+          "type": "string",
+          "minLength": 1,
+          "default": "whisper-1",
+          "description": "Grok model used for audio transcription (OpenAI-compatible)"
+        },
+        "claudeModel": {
+          "type": "string",
+          "minLength": 1,
+          "default": "claude-haiku-4-5-20251001",
+          "description": "Claude model used for the cleanup pass in claude provider mode"
+        },
+        "transcriptionTimeoutMs": {
+          "type": "integer",
+          "minimum": 1000,
+          "maximum": 60000,
+          "default": 10000,
+          "description": "Milliseconds before transcription API call times out"
+        }
+      }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "plannerProvider": {
+          "type": "string",
+          "enum": ["gemini", "grok", "openai", "anthropic"],
+          "default": "gemini",
+          "description": "AI provider used for plan generation"
+        },
+        "plannerModel": {
+          "type": "string",
+          "minLength": 1,
+          "default": "gemini-2.5-flash-lite",
+          "description": "Model identifier for the planner provider"
+        },
+        "visionProvider": {
+          "type": "string",
+          "enum": ["gemini", "openai"],
+          "default": "gemini",
+          "description": "AI provider used for screenshot vision analysis"
+        },
+        "visionEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "false disables all vision API calls"
+        },
+        "confirmBeforeExecute": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show plan preview and require confirmation before executing"
+        },
+        "maxSteps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20,
+          "description": "Plans exceeding this step count are rejected by validator.js"
+        },
+        "stepRetries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "default": 1,
+          "description": "Max retries per failed step before surfacing error to user"
+        },
+        "maxRequestsPerMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "default": 20,
+          "description": "Hard cap on total API requests per minute — 60 s cooldown if exceeded"
+        },
+        "maxPlanRequestsPerMinute": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60,
+          "default": 5,
+          "description": "Shared cap for plan gen + edit re-inference + clarification re-plans"
+        },
+        "codeMode": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable code-mode system prompt for the planner"
+        },
+        "codeInsertViaClipboard": {
+          "type": "boolean",
+          "default": true,
+          "description": "Insert code results via clipboard paste instead of keyboard.type()"
+        }
+      }
+    },
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "restoreFocusAfter": {
+          "type": "boolean",
+          "default": true,
+          "description": "Restore focus to the target window after plan execution completes"
+        },
+        "showStepProgress": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show per-step progress indicator in the HUD during execution"
+        },
+        "typingSpeed": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 500,
+          "default": 0,
+          "description": "Milliseconds delay between typed characters; 0 = instant"
+        },
+        "hudPosition": {
+          "type": "string",
+          "enum": ["bottom-center", "bottom-right", "top-center"],
+          "default": "bottom-center",
+          "description": "HUD overlay anchor position on screen"
+        },
+        "sensitiveContextApps": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": [],
+          "description": "App names that always block cloud AI calls (sensitive context enforcement)"
+        },
+        "pillFadeOnIdle": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fade the HUD pill to 30% opacity after 5 s of idle"
+        }
+      }
+    },
+    "sandbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "allowedWritePaths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": ["~/Documents/Typeless"],
+          "description": "Paths the agent is permitted to write files to"
+        },
+        "allowedReadPaths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": ["~/Documents/Typeless", "~/Desktop"],
+          "description": "Paths the agent is permitted to read files from"
+        },
+        "deniedPaths": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "default": [],
+          "description": "User-defined extra denied paths — merged with SYSTEM_DENIED_PATHS at runtime"
+        },
+        "allowedCommands": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "path"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "path": { "type": "string", "minLength": 1 },
+              "allowedArgs": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "workingDir": { "type": "string", "minLength": 1 }
+            }
+          },
+          "default": [],
+          "description": "Allowlisted shell commands: [{name, path, allowedArgs?, workingDir?}]"
+        },
+        "allowDelete": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow plan steps to delete files"
+        },
+        "allowShellExec": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow plan steps to invoke shell commands via runCommand"
+        },
+        "allowOverwrite": {
+          "type": "boolean",
+          "default": false,
+          "description": "Allow plan steps to overwrite existing files"
+        }
+      }
+    },
+    "tts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable text-to-speech readback of completed actions"
+        },
+        "provider": {
+          "type": "string",
+          "enum": ["say", "elevenlabs"],
+          "default": "say",
+          "description": "TTS engine (say package not installed until step 64 — safe only because tts.enabled defaults false)"
+        }
+      }
+    },
+    "scheduler": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable scheduled / recurring plan execution"
+        }
+      }
+    },
+    "telemetry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Send anonymous usage telemetry to the Typeless team"
+        }
+      }
+    },
+    "analytics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "localLogEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Write structured event log to local disk"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 365,
+          "default": 30,
+          "description": "Days to retain local analytics logs before pruning"
+        }
+      }
+    },
+    "logging": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["error", "warn", "info", "debug"],
+          "default": "info",
+          "description": "Winston log level for the main process"
+        },
+        "maxFileSizeMb": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10,
+          "description": "Maximum size of a single log file in megabytes before rotation"
+        },
+        "maxFiles": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 5,
+          "description": "Number of rotated log files to retain"
+        }
+      }
+    }
+  }
+}

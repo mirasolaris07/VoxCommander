@@ -1,0 +1,54 @@
+VoxCommander
+Copyright 2026 Mira Solaris
+
+This product is licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+-------------------------------------------------------------------------------
+
+This software makes use of the following third-party components:
+
+Electron — MIT License
+  Copyright (c) Electron contributors
+  https://github.com/electron/electron
+
+@nut-tree-fork/nut-js — MIT License
+  https://github.com/nut-tree/nut.js
+
+node-record-lpcm16 — MIT License
+  Copyright (c) Moos
+  https://github.com/gillesdemey/node-record-lpcm16
+
+electron-store — MIT License
+  Copyright (c) Sindre Sorhus
+  https://github.com/sindresorhus/electron-store
+
+electron-log — MIT License
+  Copyright (c) Alex Butchenko
+  https://github.com/megahertz/electron-log
+
+ajv — MIT License
+  Copyright (c) Evgeny Poberezkin
+  https://github.com/ajv-validator/ajv
+
+dotenv — BSD-2-Clause License
+  Copyright (c) Scott Motte
+  https://github.com/motdotla/dotenv
+
+keytar — MIT License
+  Copyright (c) GitHub Inc.
+  https://github.com/atom/node-keytar
+
+screenshot-desktop — MIT License
+  https://github.com/bencevans/screenshot-desktop
+
+-------------------------------------------------------------------------------
+
+Speech-to-text transcription is powered by third-party AI APIs:
+  Google Gemini API — https://ai.google.dev
+  OpenAI Whisper API — https://openai.com
+  xAI Grok API — https://x.ai
+  Anthropic Claude API — https://anthropic.com
+
+Use of these APIs is subject to their respective terms of service.
+API keys are your responsibility and are never stored by VoxCommander.

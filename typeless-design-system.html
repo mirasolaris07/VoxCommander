@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typeless — Complete UI/UX Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  /* Core palette */
+  --ink:       #07070F;
+  --ink1:      #0D0D1C;
+  --ink2:      #131326;
+  --ink3:      #1A1A32;
+  --ink4:      #222240;
+  --ink5:      #2C2C52;
+  --line:      #2A2A4A;
+  --line2:     #363660;
+
+  /* Text */
+  --t0: #F0F0FF;
+  --t1: #B0B0D8;
+  --t2: #6A6A9A;
+  --t3: #3A3A62;
+
+  /* Accent — electric blue */
+  --a:    #3D8EFF;
+  --a-lo: #0D2A5C;
+  --a-mid:#1A3F80;
+
+  /* Green — plan/success */
+  --g:    #00D68F;
+  --g-lo: #00281A;
+  --g-mid:#004A30;
+
+  /* Red — recording/error */
+  --r:    #FF4757;
+  --r-lo: #2A0A0F;
+  --r-mid:#4A1218;
+
+  /* Amber — warning/plan-mode */
+  --am:   #FFB627;
+  --am-lo:#2A1C00;
+
+  /* Purple — executing */
+  --p:    #A855F7;
+  --p-lo: #1A0A2A;
+
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Outfit', sans-serif;
+  --rad:  10px;
+  --rad-sm: 6px;
+  --rad-lg: 16px;
+  --rad-xl: 22px;
+}
+
+body {
+  background: #050509;
+  color: var(--t0);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* noise overlay */
+body::after {
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;
+}
+
+/* ══ LAYOUT ═══════════════════════════════════════════════════════════ */
+.canvas { max-width: 1400px; margin: 0 auto; padding: 48px 32px; }
+
+.doc-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 64px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.doc-logo { font-family: var(--mono); font-size: 28px; font-weight: 700; color: var(--a); letter-spacing: -0.03em; }
+.doc-meta { font-family: var(--mono); font-size: 11px; color: var(--t3); text-align: right; line-height: 1.8; }
+
+/* Section */
+.section {
+  margin-bottom: 80px;
+}
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.section-num {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--a);
+  background: var(--a-lo);
+  border: 1px solid var(--a-mid);
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--t0);
+}
+.section-desc {
+  font-size: 13px;
+  color: var(--t2);
+  margin-left: auto;
+  font-family: var(--mono);
+}
+.section-head::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--line);
+}
+
+/* Screen grid */
+.screen-grid {
+  display: grid;
+  gap: 24px;
+}
+.sg-2 { grid-template-columns: 1fr 1fr; }
+.sg-3 { grid-template-columns: 1fr 1fr 1fr; }
+.sg-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+.sg-auto { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+
+/* Screen frame */
+.screen {
+  background: var(--ink1);
+  border: 1px solid var(--line);
+  border-radius: var(--rad-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.screen-label {
+  padding: 10px 16px;
+  background: var(--ink2);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.screen-label-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--t2);
+  text-transform: uppercase;
+}
+.screen-label-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+.tag-mvp { background: var(--a-lo); color: var(--a); border: 1px solid var(--a-mid); }
+.tag-addon { background: var(--am-lo); color: var(--am); border: 1px solid rgba(255,182,39,0.3); }
+.screen-body { padding: 20px; flex: 1; }
+.screen-body.centered { display: flex; align-items: center; justify-content: center; }
+.screen-body.tight { padding: 12px; }
+.screen-body.none { padding: 0; }
+
+/* ══ COMPONENT ATOMS ══════════════════════════════════════════════════ */
+
+/* Kbd badge */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  background: var(--ink4);
+  border: 1px solid var(--line2);
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--t1);
+  line-height: 1.4;
+}
+
+/* Chip / badge */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+.chip-a  { background: var(--a-lo);  color: var(--a);  border: 1px solid var(--a-mid);  }
+.chip-g  { background: var(--g-lo);  color: var(--g);  border: 1px solid var(--g-mid);  }
+.chip-r  { background: var(--r-lo);  color: var(--r);  border: 1px solid var(--r-mid);  }
+.chip-am { background: var(--am-lo); color: var(--am); border: 1px solid rgba(255,182,39,0.3); }
+.chip-p  { background: var(--p-lo);  color: var(--p);  border: 1px solid rgba(168,85,247,0.3); }
+
+/* Dot indicator */
+.dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+.dot-idle { background:var(--t3); }
+.dot-rec  { background:var(--r); animation:pulseR 1s ease-in-out infinite; }
+.dot-proc { background:var(--a); animation:pulseA 1.2s ease-in-out infinite; }
+.dot-ok   { background:var(--g); }
+.dot-plan { background:var(--am); animation:pulseAm 1s ease-in-out infinite; }
+.dot-exec { background:var(--p); animation:pulseP 1s ease-in-out infinite; }
+
+@keyframes pulseR  {0%,100%{box-shadow:0 0 0 0 rgba(255,71,87,0.5)}50%{box-shadow:0 0 0 5px rgba(255,71,87,0)}}
+@keyframes pulseA  {0%,100%{box-shadow:0 0 0 0 rgba(61,142,255,0.4)}50%{box-shadow:0 0 0 5px rgba(61,142,255,0)}}
+@keyframes pulseAm {0%,100%{box-shadow:0 0 0 0 rgba(255,182,39,0.4)}50%{box-shadow:0 0 0 5px rgba(255,182,39,0)}}
+@keyframes pulseP  {0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,0.4)}50%{box-shadow:0 0 0 5px rgba(168,85,247,0)}}
+
+/* Waveform */
+.wave { display:flex;align-items:center;gap:3px;height:28px; }
+.wb {
+  width:3px;border-radius:2px;background:var(--a);
+  animation:wv 0.9s ease-in-out infinite;
+}
+.wb.plan { background: var(--am); }
+.wb:nth-child(1){animation-delay:.00s;height:35%}
+.wb:nth-child(2){animation-delay:.08s;height:65%}
+.wb:nth-child(3){animation-delay:.16s;height:100%}
+.wb:nth-child(4){animation-delay:.12s;height:55%}
+.wb:nth-child(5){animation-delay:.04s;height:80%}
+.wb:nth-child(6){animation-delay:.20s;height:40%}
+.wb:nth-child(7){animation-delay:.08s;height:90%}
+.wb:nth-child(8){animation-delay:.18s;height:50%}
+.wb:nth-child(9){animation-delay:.02s;height:70%}
+.wb:nth-child(10){animation-delay:.14s;height:30%}
+.wb:nth-child(11){animation-delay:.10s;height:60%}
+.wb:nth-child(12){animation-delay:.22s;height:45%}
+@keyframes wv{0%,100%{transform:scaleY(.35);opacity:.5}50%{transform:scaleY(1);opacity:1}}
+
+/* Spinner */
+.spin {
+  width:16px;height:16px;border-radius:50%;
+  border:2px solid var(--line2);
+  border-top-color:var(--a);
+  animation:spin 0.7s linear infinite;
+  flex-shrink:0;
+}
+.spin.g { border-top-color:var(--g); }
+.spin.p { border-top-color:var(--p); }
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Progress bar */
+.pbar { height:3px;background:var(--line);border-radius:2px;overflow:hidden; }
+.pbar-fill { height:100%;border-radius:2px;transition:width .3s; }
+.pbar-a { background:var(--a); }
+.pbar-g { background:var(--g); }
+
+/* Button */
+.btn {
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 18px;border-radius:var(--rad-sm);
+  font-family:var(--sans);font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .15s;border:none;
+}
+.btn-primary { background:var(--a);color:#fff; }
+.btn-primary:hover { background:#5BA3FF; }
+.btn-ghost { background:transparent;color:var(--t1);border:1px solid var(--line2); }
+.btn-ghost:hover { background:var(--ink3); }
+.btn-danger { background:var(--r-lo);color:var(--r);border:1px solid var(--r-mid); }
+.btn-success { background:var(--g-lo);color:var(--g);border:1px solid var(--g-mid); }
+.btn-plan { background:var(--am-lo);color:var(--am);border:1px solid rgba(255,182,39,0.3); }
+.btn-sm { padding:6px 12px;font-size:12px; }
+.btn-full { width:100%;justify-content:center; }
+
+/* Input */
+.inp {
+  background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad-sm);
+  padding:9px 13px;font-family:var(--mono);font-size:12px;color:var(--t0);
+  width:100%;outline:none;transition:border-color .15s;
+}
+.inp:focus { border-color:var(--a); }
+.inp::placeholder { color:var(--t3); }
+.inp.masked { letter-spacing:0.15em;color:var(--t2); }
+
+/* Toggle */
+.toggle-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 0;border-bottom:1px solid var(--line);
+}
+.toggle-row:last-child { border-bottom:none; }
+.toggle-info { flex:1; }
+.toggle-label { font-size:13px;font-weight:500;color:var(--t0); }
+.toggle-sub { font-size:11px;color:var(--t2);font-family:var(--mono);margin-top:2px; }
+.toggle {
+  width:36px;height:20px;border-radius:100px;
+  background:var(--ink4);border:1px solid var(--line2);
+  position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;
+}
+.toggle.on { background:var(--a);border-color:var(--a); }
+.toggle::after {
+  content:'';position:absolute;top:2px;left:2px;
+  width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:transform .2s;
+}
+.toggle.on::after { transform:translateX(16px); }
+
+/* Select */
+.sel-row {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--line);
+}
+.sel-row:last-child { border-bottom:none; }
+.sel-label { font-size:13px;font-weight:500;color:var(--t0); }
+.sel-sub { font-size:11px;color:var(--t2);font-family:var(--mono); }
+.sel-val {
+  background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad-sm);
+  padding:5px 10px;font-family:var(--mono);font-size:12px;color:var(--t1);
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+}
+
+/* Settings sidebar */
+.settings-layout { display:grid;grid-template-columns:180px 1fr;gap:0;height:100%; }
+.settings-nav { background:var(--ink2);border-right:1px solid var(--line);padding:16px 0; }
+.nav-item {
+  padding:9px 16px;font-size:13px;font-weight:500;color:var(--t2);
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;
+  border-left:2px solid transparent;
+}
+.nav-item:hover { color:var(--t0);background:var(--ink3); }
+.nav-item.active { color:var(--t0);background:var(--ink3);border-left-color:var(--a); }
+.nav-icon { font-size:14px;width:18px;text-align:center; }
+.settings-content { padding:24px;overflow-y:auto; }
+.settings-section-title {
+  font-size:15px;font-weight:700;color:var(--t0);
+  margin-bottom:4px;
+}
+.settings-section-sub { font-size:12px;color:var(--t2);font-family:var(--mono);margin-bottom:20px; }
+
+/* Form group */
+.form-group { margin-bottom:20px; }
+.form-label { font-size:12px;font-weight:600;color:var(--t1);margin-bottom:6px;display:block;font-family:var(--mono);text-transform:uppercase;letter-spacing:0.06em; }
+.form-hint { font-size:11px;color:var(--t2);font-family:var(--mono);margin-top:5px; }
+
+/* Provider card */
+.prov-card {
+  background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad);
+  padding:14px 16px;cursor:pointer;transition:all .2s;position:relative;
+  display:flex;align-items:center;gap:14px;
+}
+.prov-card:hover { border-color:var(--line2);background:var(--ink4); }
+.prov-card.active { border-color:var(--a);background:var(--a-lo); }
+.prov-icon { font-size:22px;flex-shrink:0;width:30px;text-align:center; }
+.prov-info { flex:1; }
+.prov-name { font-size:13px;font-weight:700;color:var(--t0); }
+.prov-model { font-family:var(--mono);font-size:11px;color:var(--t2);margin-top:1px; }
+.prov-default { font-family:var(--mono);font-size:9px;color:var(--a);letter-spacing:0.1em; }
+.prov-check {
+  width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--line2);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+.prov-card.active .prov-check {
+  background:var(--a);border-color:var(--a);color:#fff;font-size:10px;
+}
+.prov-key-row {
+  display:flex;align-items:center;gap:10px;
+  margin-top:10px;padding:8px 12px;
+  background:var(--ink2);border-radius:var(--rad-sm);
+}
+.prov-key-label { font-family:var(--mono);font-size:10px;color:var(--t2);width:90px;flex-shrink:0; }
+.prov-key-val { font-family:var(--mono);font-size:11px;color:var(--t2);flex:1; }
+.prov-key-status {
+  font-family:var(--mono);font-size:9px;padding:2px 7px;border-radius:100px;
+}
+.ks-set { background:var(--g-lo);color:var(--g);border:1px solid var(--g-mid); }
+.ks-unset { background:var(--r-lo);color:var(--r);border:1px solid var(--r-mid); }
+
+/* Hotkey recorder */
+.hotkey-box {
+  background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad-sm);
+  padding:10px 14px;display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:border-color .15s;
+}
+.hotkey-box:hover, .hotkey-box.recording { border-color:var(--a); }
+.hotkey-box.recording { background:var(--a-lo); }
+.hotkey-keys { display:flex;gap:5px;align-items:center; }
+.hotkey-hint { font-family:var(--mono);font-size:10px;color:var(--t3); }
+
+/* Sandbox path row */
+.path-row {
+  display:flex;align-items:center;gap:8px;
+  padding:8px 12px;background:var(--ink3);
+  border-radius:var(--rad-sm);margin-bottom:6px;
+  border:1px solid var(--line);
+}
+.path-icon { font-size:13px;flex-shrink:0; }
+.path-text { font-family:var(--mono);font-size:12px;color:var(--t1);flex:1; }
+.path-remove {
+  width:20px;height:20px;border-radius:50%;
+  background:transparent;border:none;color:var(--t3);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all .15s;flex-shrink:0;
+}
+.path-remove:hover { background:var(--r-lo);color:var(--r); }
+
+/* Command row */
+.cmd-row {
+  display:grid;grid-template-columns:100px 1fr 80px 32px;gap:8px;align-items:center;
+  padding:8px 12px;background:var(--ink3);border-radius:var(--rad-sm);
+  margin-bottom:6px;border:1px solid var(--line);
+}
+.cmd-name { font-family:var(--mono);font-size:12px;color:var(--a);font-weight:600; }
+.cmd-path { font-family:var(--mono);font-size:11px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.cmd-scope { font-family:var(--mono);font-size:10px;color:var(--t2);text-align:right; }
+
+/* Danger zone */
+.danger-zone {
+  background:var(--r-lo);border:1px solid var(--r-mid);border-radius:var(--rad);
+  padding:16px;margin-top:8px;
+}
+.danger-title { font-size:12px;font-weight:700;color:var(--r);margin-bottom:12px;display:flex;align-items:center;gap:7px; }
+
+/* History item */
+.hist-item {
+  display:flex;align-items:flex-start;gap:12px;
+  padding:10px 14px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .15s;
+}
+.hist-item:hover { background:var(--ink3); }
+.hist-time { font-family:var(--mono);font-size:10px;color:var(--t3);flex-shrink:0;margin-top:2px;width:48px; }
+.hist-text { font-size:12px;color:var(--t1);flex:1;line-height:1.5; }
+.hist-mode { flex-shrink:0; }
+
+/* Window picker item */
+.win-item {
+  display:flex;align-items:center;gap:12px;
+  padding:10px 14px;border-radius:var(--rad-sm);
+  cursor:pointer;transition:background .15s;
+}
+.win-item:hover { background:var(--ink3); }
+.win-item.active { background:var(--a-lo);border:1px solid var(--a-mid); }
+.win-icon { font-size:20px;flex-shrink:0; }
+.win-title { font-size:13px;font-weight:500;color:var(--t0);flex:1; }
+.win-pid { font-family:var(--mono);font-size:10px;color:var(--t3); }
+
+/* Step row in plan */
+.step-row {
+  display:flex;align-items:center;gap:10px;
+  padding:7px 14px;
+}
+.step-n {
+  width:22px;height:22px;border-radius:50%;
+  background:var(--ink4);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;color:var(--t2);flex-shrink:0;
+}
+.step-n.done { background:var(--g-mid);border-color:var(--g);color:var(--g); }
+.step-n.active { background:var(--a-mid);border-color:var(--a);color:var(--a); }
+.step-n.error { background:var(--r-mid);border-color:var(--r);color:var(--r); }
+.step-action {
+  font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:4px;flex-shrink:0;
+}
+.sa-open { background:rgba(61,142,255,.15);color:var(--a); }
+.sa-click { background:rgba(0,214,143,.15);color:var(--g); }
+.sa-type { background:rgba(168,85,247,.15);color:var(--p); }
+.sa-screen { background:rgba(255,182,39,.15);color:var(--am); }
+.sa-wait { background:rgba(255,255,255,.07);color:var(--t2); }
+.step-desc { font-size:12px;color:var(--t1);flex:1; }
+.step-status { font-size:13px;flex-shrink:0; }
+
+/* Onboarding */
+.ob-progress {
+  display:flex;gap:6px;margin-bottom:28px;
+}
+.ob-step {
+  height:3px;flex:1;border-radius:2px;background:var(--line);transition:background .3s;
+}
+.ob-step.done { background:var(--g); }
+.ob-step.active { background:var(--a); }
+.ob-icon { font-size:40px;margin-bottom:16px;display:block;text-align:center; }
+.ob-title { font-size:18px;font-weight:700;color:var(--t0);text-align:center;margin-bottom:6px; }
+.ob-sub { font-size:13px;color:var(--t2);text-align:center;line-height:1.6;margin-bottom:24px; }
+
+/* Tray mockup */
+.tray-menu {
+  background:var(--ink2);
+  border:1px solid var(--line2);
+  border-radius:var(--rad-lg);
+  overflow:hidden;
+  box-shadow:0 16px 48px rgba(0,0,0,0.6);
+  width:240px;
+}
+.tray-header {
+  padding:14px 16px;
+  background:var(--ink3);
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:10px;
+}
+.tray-app-name { font-size:14px;font-weight:700;color:var(--t0); }
+.tray-version { font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto; }
+.tray-sep { height:1px;background:var(--line);margin:4px 0; }
+.tray-item {
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;font-size:13px;color:var(--t1);
+  cursor:pointer;transition:all .12s;
+}
+.tray-item:hover { background:var(--ink3);color:var(--t0); }
+.tray-item.danger:hover { background:var(--r-lo);color:var(--r); }
+.tray-icon { font-size:14px;width:16px;text-align:center; }
+.tray-shortcut { margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--t3); }
+.tray-item-sub { font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:26px;margin-top:-6px;margin-bottom:4px; }
+
+/* Error HUD */
+.error-box {
+  background:var(--r-lo);border:1px solid var(--r-mid);border-radius:var(--rad);
+  padding:14px 16px;
+}
+.error-row { display:flex;align-items:flex-start;gap:10px; }
+.error-icon { font-size:16px;flex-shrink:0;margin-top:1px; }
+.error-title { font-size:13px;font-weight:700;color:var(--r);margin-bottom:3px; }
+.error-msg { font-size:12px;color:var(--t2);font-family:var(--mono);line-height:1.5; }
+.error-actions { display:flex;gap:8px;margin-top:12px; }
+
+/* Annotation */
+.ann {
+  font-family:var(--mono);font-size:11px;color:var(--t3);
+  margin-top:10px;line-height:1.6;
+}
+.ann b { color:var(--t2); }
+
+/* Full HUD window simulation */
+.desktop-sim {
+  background:#0A0A14;
+  border:1px solid var(--line2);
+  border-radius:var(--rad-xl);
+  overflow:hidden;
+  position:relative;
+  min-height:320px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  padding-bottom:20px;
+}
+.desktop-wallpaper {
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at 30% 40%, rgba(20,20,60,0.8) 0%, #0A0A14 70%);
+}
+.desktop-app-ghost {
+  position:absolute;
+  top:20px;left:20px;right:20px;bottom:60px;
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+}
+.desktop-app-label {
+  font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.15);
+  letter-spacing:0.1em;text-transform:uppercase;
+}
+.hud-float {
+  position:relative;z-index:10;
+  width:100%;max-width:440px;
+}
+
+/* HUD components */
+.hud-pill {
+  display:flex;align-items:center;gap:10px;
+  background:rgba(13,13,28,0.92);
+  border:1px solid var(--line2);
+  border-radius:100px;
+  padding:7px 14px;
+  backdrop-filter:blur(12px);
+  width:fit-content;
+  margin:0 auto;
+  box-shadow:0 4px 20px rgba(0,0,0,0.4);
+}
+.hud-pill-text { font-family:var(--mono);font-size:11px;color:var(--t2); }
+
+.hud-card {
+  background:rgba(13,13,28,0.95);
+  border:1px solid var(--line2);
+  border-radius:var(--rad-xl);
+  backdrop-filter:blur(20px);
+  box-shadow:0 8px 40px rgba(0,0,0,0.6);
+  overflow:hidden;
+}
+.hud-card.rec-mode { border-color:rgba(255,71,87,0.4);box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,71,87,0.1); }
+.hud-card.plan-mode { border-color:rgba(255,182,39,0.4);box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(255,182,39,0.1); }
+.hud-card.plan-ready { border-color:rgba(0,214,143,0.4);box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(0,214,143,0.1); }
+.hud-card.executing { border-color:rgba(168,85,247,0.4);box-shadow:0 8px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(168,85,247,0.1); }
+.hud-card.success { border-color:rgba(0,214,143,0.5); }
+.hud-card.error { border-color:rgba(255,71,87,0.4); }
+
+.hud-top {
+  padding:13px 16px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.hud-body { padding:14px 16px; }
+.hud-bottom {
+  display:grid;
+  border-top:1px solid rgba(255,255,255,0.06);
+}
+.hud-act {
+  padding:11px 14px;
+  background:transparent;border:none;
+  cursor:pointer;transition:background .15s;
+  display:flex;flex-direction:column;gap:3px;
+  text-align:left;
+}
+.hud-act:not(:last-child) { border-right:1px solid rgba(255,255,255,0.06); }
+.hud-act:hover { background:rgba(255,255,255,0.04); }
+.hud-act.primary:hover { background:rgba(61,142,255,0.08); }
+.hud-act.success:hover { background:rgba(0,214,143,0.08); }
+.hud-act.danger:hover  { background:rgba(255,71,87,0.08); }
+.hud-act-key { display:flex;align-items:center;gap:5px; }
+.hud-act-label { font-size:13px;font-weight:600;color:var(--t0); }
+.hud-act-sub { font-size:11px;color:var(--t2);font-family:var(--mono); }
+
+.transcript-display {
+  font-family:var(--mono);font-size:12px;color:var(--t0);
+  line-height:1.6;
+  padding:2px 0 8px;
+}
+.transcript-meta {
+  display:flex;align-items:center;gap:8px;margin-bottom:6px;
+}
+.transcript-meta-label { font-family:var(--mono);font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em; }
+
+/* Onboarding full window */
+.ob-window {
+  background:var(--ink1);
+  border:1px solid var(--line2);
+  border-radius:var(--rad-xl);
+  overflow:hidden;
+}
+.ob-titlebar {
+  background:var(--ink2);
+  padding:12px 16px;
+  border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:8px;
+}
+.ob-dots { display:flex;gap:6px; }
+.ob-dot-r { width:12px;height:12px;border-radius:50%;background:#FF5F56; }
+.ob-dot-y { width:12px;height:12px;border-radius:50%;background:#FFBD2E; }
+.ob-dot-g { width:12px;height:12px;border-radius:50%;background:#27C93F; }
+.ob-title-text { font-family:var(--mono);font-size:12px;color:var(--t2);margin:0 auto; }
+.ob-body { padding:32px; }
+
+/* Divider */
+.div-line { height:1px;background:var(--line);margin:20px 0; }
+
+/* Info callout */
+.callout {
+  background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad-sm);
+  padding:12px 14px;display:flex;gap:10px;margin:12px 0;
+}
+.callout.info { border-left:3px solid var(--a); }
+.callout.warn { border-left:3px solid var(--am); }
+.callout.success { border-left:3px solid var(--g); }
+.callout-icon { font-size:14px;flex-shrink:0;margin-top:1px; }
+.callout-text { font-size:12px;color:var(--t2);font-family:var(--mono);line-height:1.6; }
+.callout-text b { color:var(--t1); }
+
+@media(max-width:900px){
+  .sg-2,.sg-3,.sg-4{grid-template-columns:1fr}
+  .settings-layout{grid-template-columns:1fr}
+  .settings-nav{display:none}
+}
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div>
+      <div class="doc-logo">typeless</div>
+      <div style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-top:4px;">Complete UI/UX Design System · All Screens · All States · All Components</div>
+    </div>
+    <div class="doc-meta">
+      Version 2.0 — Gap-Fixed<br>
+      Gaps patched: 14 critical + 8 partial<br>
+      Hotkey model: dual-key<br>
+      Provider: Gemini default
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+  SECTION 1 — HUD STATES IN CONTEXT
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">01</span>
+      <span class="section-title">HUD — All States in Desktop Context</span>
+      <span class="section-desc">bottom-center overlay · always-on-top · click-through when idle · 13 states</span>
+    </div>
+    <div class="screen-grid sg-2" style="gap:16px;">
+
+      <!-- 1A: Idle -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1A · Idle — Pill</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:260px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-pill">
+                <div class="dot dot-idle"></div>
+                <span class="hud-pill-text">typeless</span>
+                <div style="width:1px;height:12px;background:var(--line2);"></div>
+                <span class="kbd">Alt+Space</span>
+                <span class="hud-pill-text" style="color:var(--t3);">dictate</span>
+                <div style="width:1px;height:12px;background:var(--line2);"></div>
+                <span class="kbd">Alt+⇧+Space</span>
+                <span class="hud-pill-text" style="color:var(--t3);">plan</span>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;">
+            <b>Idle pill</b> — 32px height. Fully transparent bg option. Click-through (pointer-events:none).
+            Shows both hotkeys. Fades to 30% opacity after 5s of no activity.
+          </div>
+        </div>
+      </div>
+
+      <!-- 1B: Recording — Dictate -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1B · Recording — Dictate Mode (Alt+Space held)</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:260px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card rec-mode">
+                <div class="hud-top">
+                  <div class="dot dot-rec"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t2);text-transform:uppercase;letter-spacing:0.1em;">Dictate</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto;">0:03</span>
+                  <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;font-family:var(--mono);">Alt+⇧+Esc ×</button>
+                </div>
+                <div class="hud-body">
+                  <div class="wave">
+                    <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+                    <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+                    <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+                    <div class="wb"></div><div class="wb"></div><div class="wb"></div>
+                  </div>
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-top:10px;">
+                    Release <span class="kbd" style="font-size:10px;">Alt+Space</span> to transcribe
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Dictate mode</b> — red dot, blue waveform, timer. Release key → instant transcribe → instant type.</div>
+        </div>
+      </div>
+
+      <!-- 1C: Recording — Plan -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1C · Recording — Plan Mode (Alt+⇧+Space held)</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:260px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card plan-mode">
+                <div class="hud-top">
+                  <div class="dot dot-plan"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--am);text-transform:uppercase;letter-spacing:0.1em;">Plan</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto;">0:05</span>
+                  <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;font-family:var(--mono);">Alt+⇧+Esc ×</button>
+                </div>
+                <div class="hud-body">
+                  <div class="wave">
+                    <div class="wb plan"></div><div class="wb plan"></div><div class="wb plan"></div>
+                    <div class="wb plan"></div><div class="wb plan"></div><div class="wb plan"></div>
+                    <div class="wb plan"></div><div class="wb plan"></div><div class="wb plan"></div>
+                    <div class="wb plan"></div><div class="wb plan"></div><div class="wb plan"></div>
+                  </div>
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-top:10px;">
+                    Release <span class="kbd" style="font-size:10px;">Alt+⇧+Space</span> to build plan
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Plan mode</b> — amber dot, amber waveform. Visually distinct so user knows which mode they're in.</div>
+        </div>
+      </div>
+
+      <!-- 1D: Transcribing -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1D · Processing — Transcribing</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:260px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card">
+                <div class="hud-top">
+                  <div class="spin"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t2);">Transcribing…</span>
+                  <div class="chip chip-a" style="margin-left:auto;">gemini-2.0-flash</div>
+                </div>
+                <div class="hud-body">
+                  <div class="pbar"><div class="pbar-fill pbar-a" style="width:65%;animation:prog 1.2s ease-in-out infinite alternate;"></div></div>
+                  <style>@keyframes prog{from{width:20%}to{width:90%}}</style>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>For dictate path:</b> this is shown for ~600–1500ms then immediately types. For plan path, continues to planning state.</div>
+        </div>
+      </div>
+
+      <!-- 1E: Typed confirmation -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1E · Done — Typed at Cursor</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:260px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card success" style="animation:successFade 2.5s ease forwards;">
+                <style>@keyframes successFade{0%{opacity:1}70%{opacity:1}100%{opacity:0}}</style>
+                <div class="hud-top">
+                  <div class="dot dot-ok"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--g);">Typed</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto;">0.9s</span>
+                </div>
+                <div class="hud-body">
+                  <div class="transcript-display">"reschedule the 3pm with David to Thursday"</div>
+                  <div style="display:flex;gap:8px;align-items:center;">
+                    <button class="btn btn-ghost btn-sm">↺ Undo</button>
+                    <span style="font-family:var(--mono);font-size:10px;color:var(--t3);">fades in 2s</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Auto-fades after 2s.</b> Undo button available during the fade window. Pressing Ctrl+Z also works.</div>
+        </div>
+      </div>
+
+      <!-- 1F: Planning -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1F · Processing — Building Plan</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:260px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card plan-mode">
+                <div class="hud-top">
+                  <div class="spin g"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t2);">Planning…</span>
+                  <div class="chip chip-a" style="margin-left:auto;">gemini-2.0-flash</div>
+                </div>
+                <div class="hud-body">
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-bottom:8px;">
+                    "open Slack and tell the team the build passed"
+                  </div>
+                  <div class="pbar"><div class="pbar-fill pbar-g" style="width:45%;animation:prog 1.8s ease-in-out infinite alternate;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Plan mode processing</b> — shows the transcript while planning so user can verify what was heard.</div>
+        </div>
+      </div>
+
+      <!-- 1G: Plan Preview -->
+      <div class="screen" style="grid-column:span 2;">
+        <div class="screen-label">
+          <span class="screen-label-text">1G · Plan Preview — Review Before Execute</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:300px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card plan-ready">
+                <div class="hud-top">
+                  <div class="dot dot-ok"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--g);">Plan ready</span>
+                  <div class="chip chip-g" style="margin-left:auto;">4 steps</div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:10px;">gemini-2.0-flash · 2.1s</span>
+                </div>
+                <div style="padding:8px 0;">
+                  <div class="step-row">
+                    <div class="step-n">1</div>
+                    <div class="step-action sa-open">openApp</div>
+                    <div class="step-desc">Focus or launch Slack</div>
+                  </div>
+                  <div class="step-row">
+                    <div class="step-n">2</div>
+                    <div class="step-action sa-click">clickElement</div>
+                    <div class="step-desc">Click #general channel</div>
+                  </div>
+                  <div class="step-row">
+                    <div class="step-n">3</div>
+                    <div class="step-action sa-click">clickElement</div>
+                    <div class="step-desc">Click message input</div>
+                  </div>
+                  <div class="step-row">
+                    <div class="step-n">4</div>
+                    <div class="step-action sa-type">type</div>
+                    <div class="step-desc">"the build passed" + Enter</div>
+                  </div>
+                </div>
+                <div class="hud-bottom" style="grid-template-columns:1fr 1fr 1fr;">
+                  <button class="hud-act success">
+                    <div class="hud-act-key"><span class="kbd" style="font-size:10px;">R</span></div>
+                    <div class="hud-act-label" style="color:var(--g);">Run</div>
+                    <div class="hud-act-sub">execute all steps</div>
+                  </button>
+                  <button class="hud-act">
+                    <div class="hud-act-key"><span class="kbd" style="font-size:10px;">E</span></div>
+                    <div class="hud-act-label">Edit</div>
+                    <div class="hud-act-sub">modify steps</div>
+                  </button>
+                  <button class="hud-act danger">
+                    <div class="hud-act-key"><span class="kbd" style="font-size:10px;">Alt+⇧+Esc</span></div>
+                    <div class="hud-act-label" style="color:var(--r);">Cancel</div>
+                    <div class="hud-act-sub">discard plan</div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>All keyboard driven.</b> R=run, E=edit, Alt+⇧+Esc=cancel. No mouse required. Steps show action type + plain English description.</div>
+        </div>
+      </div>
+
+      <!-- 1H: Executing -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1H · Executing Plan (Phase 2 addon)</span>
+          <span class="screen-label-tag tag-addon">ADDON</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:280px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card executing">
+                <div class="hud-top">
+                  <div class="spin p"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--p);">Executing</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto;">step 2 of 4</span>
+                  <button style="background:var(--r-lo);border:1px solid var(--r-mid);color:var(--r);border-radius:4px;font-family:var(--mono);font-size:10px;padding:2px 8px;cursor:pointer;margin-left:10px;">⏹ Alt+⇧+Esc</button>
+                </div>
+                <div style="padding:8px 0;">
+                  <div class="step-row">
+                    <div class="step-n done">✓</div>
+                    <div class="step-action sa-open">openApp</div>
+                    <div class="step-desc" style="color:var(--t3);">Slack focused</div>
+                    <div class="step-status">✓</div>
+                  </div>
+                  <div class="step-row" style="background:rgba(168,85,247,0.06);border-radius:6px;">
+                    <div class="step-n active">2</div>
+                    <div class="step-action sa-click">clickElement</div>
+                    <div class="step-desc">#general channel</div>
+                    <div class="spin p" style="width:12px;height:12px;border-width:1.5px;"></div>
+                  </div>
+                  <div class="step-row" style="opacity:0.4;">
+                    <div class="step-n">3</div>
+                    <div class="step-action sa-click">clickElement</div>
+                    <div class="step-desc">message input</div>
+                  </div>
+                  <div class="step-row" style="opacity:0.4;">
+                    <div class="step-n">4</div>
+                    <div class="step-action sa-type">type</div>
+                    <div class="step-desc">"the build passed"</div>
+                  </div>
+                </div>
+                <div style="padding:6px 14px 10px;">
+                  <div class="pbar"><div class="pbar-fill" style="width:50%;background:var(--p);"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Always-visible abort button.</b> Completed steps greyed with checkmark. Active step highlighted. Progress bar.</div>
+        </div>
+      </div>
+
+      <!-- 1H-err: Step execution error -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1H-err · Step Execution Error</span>
+          <span class="screen-label-tag tag-addon">ADDON</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:280px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card error">
+                <div class="hud-top">
+                  <span style="font-size:14px;">⚠</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--r);">Step 2 failed</span>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto;">ELEMENT_NOT_FOUND</span>
+                </div>
+                <div style="padding:8px 0 4px;">
+                  <div class="step-row" style="opacity:0.4;">
+                    <div class="step-n done">✓</div>
+                    <div class="step-action sa-open">openApp</div>
+                    <div class="step-desc" style="color:var(--t3);">Slack focused</div>
+                    <div class="step-status">✓</div>
+                  </div>
+                  <div class="step-row" style="background:rgba(255,71,87,0.08);border-radius:6px;border:1px solid var(--r-mid);">
+                    <div class="step-n" style="color:var(--r);font-weight:700;">2</div>
+                    <div class="step-action sa-click">clickElement</div>
+                    <div class="step-desc" style="color:var(--r);">#general — not found</div>
+                  </div>
+                  <div class="step-row" style="opacity:0.3;">
+                    <div class="step-n">3</div>
+                    <div class="step-action sa-type">type</div>
+                    <div class="step-desc">message input</div>
+                  </div>
+                </div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--t2);padding:4px 0 10px;">Element "#general channel" not found on screen.</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding-bottom:4px;">
+                  <button class="btn btn-ghost btn-sm" style="justify-content:center;">↺ Retry</button>
+                  <button class="btn btn-ghost btn-sm" style="justify-content:center;">⏭ Skip</button>
+                  <button class="btn btn-danger btn-sm" style="justify-content:center;">⏹ Abort</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Step-level error.</b> Failed step highlighted red. Three choices: Retry (re-runs step), Skip (marks done, continues), Abort (stops + offers undo). Never a dead end.</div>
+        </div>
+      </div>
+
+      <!-- 1I: Error -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1I · Error State</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:280px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card error">
+                <div class="hud-top">
+                  <span style="font-size:14px;">⚠</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--r);">Transcription failed</span>
+                </div>
+                <div class="hud-body">
+                  <div style="font-family:var(--mono);font-size:11px;color:var(--t2);margin-bottom:12px;">API timeout after 10s. Check your connection or API key.</div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <button class="btn btn-ghost btn-sm" style="justify-content:center;">↺ Retry</button>
+                    <button class="btn btn-ghost btn-sm" style="justify-content:center;color:var(--t3);">Esc Dismiss</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Error always shows reason + action.</b> Retry re-runs from last checkpoint. Never a dead end.</div>
+        </div>
+      </div>
+
+      <!-- 1J: Done (plan complete) -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1J · Done — Plan Completed</span>
+          <span class="screen-label-tag tag-addon">ADDON</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:220px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card" style="background:var(--g-lo);border-color:var(--g-mid);">
+                <div class="hud-top">
+                  <div class="dot dot-ok"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--g);">Done</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t3);margin-left:auto;">4 steps · 3.2s</span>
+                </div>
+                <div style="font-family:var(--mono);font-size:12px;color:var(--t1);padding:8px 0 4px;">Message sent to #general ✓</div>
+                <div style="display:flex;gap:8px;padding-bottom:4px;">
+                  <button class="btn btn-ghost btn-sm">📋 Copy result</button>
+                  <button class="btn btn-ghost btn-sm" style="color:var(--t3);">↺ Undo (Alt+Z)</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Plan done state.</b> Green HUD. Shows optional result string from <code>done</code> step. Copy result button. Undo available for 10s. Auto-fades after 3s.</div>
+        </div>
+      </div>
+
+      <!-- 1K: Clarification -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1K · Clarification Sub-Flow</span>
+          <span class="screen-label-tag tag-addon">ADDON</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:280px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card" style="background:var(--am-lo);border-color:rgba(255,182,39,0.3);">
+                <div class="hud-top">
+                  <div class="dot dot-plan"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--am);">Clarifying</span>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto;">1 of max 2</span>
+                </div>
+                <div style="font-size:12px;color:var(--t1);padding:8px 0 10px;font-weight:600;">Which Slack channel?</div>
+                <div style="display:grid;gap:6px;margin-bottom:10px;">
+                  <button class="btn btn-ghost btn-sm" style="text-align:left;justify-content:flex-start;"><span style="font-family:var(--mono);color:var(--am);margin-right:8px;">1</span>#general</button>
+                  <button class="btn btn-ghost btn-sm" style="text-align:left;justify-content:flex-start;"><span style="font-family:var(--mono);color:var(--am);margin-right:8px;">2</span>#team-deploys</button>
+                  <button class="btn btn-ghost btn-sm" style="text-align:left;justify-content:flex-start;"><span style="font-family:var(--mono);color:var(--am);margin-right:8px;">3</span>#announcements</button>
+                </div>
+                <input class="inp" style="font-size:12px;padding:6px 10px;" placeholder="Or type a different answer…">
+                <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:6px;">Press 1–3 to choose · Enter to submit · Alt+⇧+Esc to cancel</div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Clarification state.</b> Amber HUD. Planner returned <code>clarify:true</code>. Up to 4 options (keys 1–4). Free-text fallback. Max 2 rounds then error.</div>
+        </div>
+      </div>
+
+      <!-- 1L: Plan Edit -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1L · Plan Edit Mode</span>
+          <span class="screen-label-tag tag-addon">ADDON</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:320px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card" style="min-width:320px;">
+                <div class="hud-top" style="border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px;">
+                  <div class="dot" style="background:var(--a);"></div>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--t1);">Edit Plan</span>
+                  <span style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:auto;">4 steps</span>
+                </div>
+                <div style="display:grid;gap:6px;margin-bottom:10px;">
+                  <div style="display:grid;grid-template-columns:18px 1fr 24px;gap:6px;align-items:center;background:var(--ink3);border-radius:6px;padding:6px 8px;">
+                    <span style="font-family:var(--mono);font-size:10px;color:var(--t3);">1</span>
+                    <div style="display:grid;grid-template-columns:110px 1fr;gap:6px;">
+                      <select class="inp" style="font-size:11px;padding:3px 6px;"><option>openApp</option></select>
+                      <input class="inp" style="font-size:11px;padding:3px 6px;" value="Focus or launch Slack">
+                    </div>
+                    <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;padding:2px;">×</button>
+                  </div>
+                  <div style="display:grid;grid-template-columns:18px 1fr 24px;gap:6px;align-items:center;background:rgba(61,142,255,0.06);border:1px solid var(--a-mid);border-radius:6px;padding:6px 8px;">
+                    <span style="font-family:var(--mono);font-size:10px;color:var(--a);">2</span>
+                    <div style="display:grid;grid-template-columns:110px 1fr;gap:6px;">
+                      <select class="inp" style="font-size:11px;padding:3px 6px;"><option>clickElement</option></select>
+                      <input class="inp" style="font-size:11px;padding:3px 6px;" value="#general channel">
+                    </div>
+                    <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;padding:2px;">×</button>
+                  </div>
+                  <div style="display:grid;grid-template-columns:18px 1fr 24px;gap:6px;align-items:center;background:var(--ink3);border-radius:6px;padding:6px 8px;">
+                    <span style="font-family:var(--mono);font-size:10px;color:var(--t3);">3</span>
+                    <div style="display:grid;grid-template-columns:110px 1fr;gap:6px;">
+                      <select class="inp" style="font-size:11px;padding:3px 6px;"><option>type</option></select>
+                      <input class="inp" style="font-size:11px;padding:3px 6px;" value="the build passed">
+                    </div>
+                    <button style="background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;padding:2px;">×</button>
+                  </div>
+                </div>
+                <button style="background:none;border:1px dashed var(--line2);border-radius:var(--rad-sm);color:var(--t3);font-size:11px;padding:5px 12px;cursor:pointer;width:100%;font-family:var(--mono);margin-bottom:10px;">＋ Add step</button>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                  <button class="btn btn-primary btn-sm" style="justify-content:center;">Save <span style="font-family:var(--mono);font-size:10px;opacity:0.7;margin-left:4px;">[S]</span></button>
+                  <button class="btn btn-ghost btn-sm" style="justify-content:center;color:var(--t3);">Cancel <span style="font-family:var(--mono);font-size:10px;opacity:0.7;margin-left:4px;">[Esc]</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Plan edit mode.</b> Press E on plan preview. Action type dropdown (all 26 steps). Description field with re-inference on save. Add/remove steps. Reorder with Alt+↑/↓. Save re-validates via validator.js. Cancel returns to plan preview unchanged.</div>
+        </div>
+      </div>
+
+      <!-- 1M: Rate limited -->
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">1M · Rate Limited</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body none">
+          <div class="desktop-sim" style="min-height:180px;">
+            <div class="desktop-wallpaper"></div>
+            <div class="desktop-app-ghost"><div class="desktop-app-label">Any Application</div></div>
+            <div class="hud-float" style="padding:0 20px 0;">
+              <div class="hud-card" style="background:var(--am-lo);border-color:rgba(255,182,39,0.3);">
+                <div class="hud-top">
+                  <span style="font-size:13px;">⏱</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--am);">Rate limited</span>
+                  <span style="font-family:var(--mono);font-size:11px;color:var(--am);margin-left:auto;font-weight:700;">47s</span>
+                </div>
+                <div style="font-family:var(--mono);font-size:11px;color:var(--t2);padding:6px 0 8px;">Auto-retrying in 47 seconds…</div>
+                <div class="pbar"><div class="pbar-fill" style="width:22%;background:var(--am);"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="ann" style="padding:12px 16px;"><b>Rate limit state.</b> Amber HUD. Countdown timer. Progress bar shows time elapsed. Auto-dismisses and re-fires the request when cooldown expires. Error code: <code>RATE_LIMITED</code>.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+  SECTION 2 — TRAY MENU
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">02</span>
+      <span class="section-title">System Tray — Icon States & Context Menu</span>
+      <span class="section-desc">right-click menu · 4 icon states</span>
+    </div>
+    <div class="screen-grid sg-2">
+
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">2A · Tray Context Menu</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body centered">
+          <div class="tray-menu">
+            <div class="tray-header">
+              <div style="width:28px;height:28px;background:var(--a-lo);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;">🎙</div>
+              <div>
+                <div class="tray-app-name">typeless</div>
+                <div style="font-family:var(--mono);font-size:10px;color:var(--t3);">● ready</div>
+              </div>
+              <div class="tray-version">v1.0.0</div>
+            </div>
+            <div style="padding:4px 0;">
+              <div class="tray-item">
+                <span class="tray-icon">⌨</span>
+                <div>
+                  <div>Dictate</div>
+                  <div style="font-family:var(--mono);font-size:10px;color:var(--t3);">types at cursor</div>
+                </div>
+                <span class="tray-shortcut">Alt+Space</span>
+              </div>
+              <div class="tray-item">
+                <span class="tray-icon">⚡</span>
+                <div>
+                  <div>Plan & Execute</div>
+                  <div style="font-family:var(--mono);font-size:10px;color:var(--t3);">build + run steps</div>
+                </div>
+                <span class="tray-shortcut">Alt+⇧+Space</span>
+              </div>
+              <div class="tray-sep"></div>
+              <div class="tray-item" title="Opens window picker panel">
+                <span class="tray-icon">🪟</span>Target Window…
+                <span class="tray-shortcut" style="color:var(--a);">→ panel</span>
+              </div>
+              <div class="tray-item" title="Opens history panel">
+                <span class="tray-icon">🕐</span>History…
+                <span class="tray-shortcut" style="color:var(--a);">→ panel</span>
+              </div>
+              <div class="tray-sep"></div>
+              <div class="tray-item">
+                <span class="tray-icon">⚙</span>Settings…
+                <span class="tray-shortcut">Ctrl+,</span>
+              </div>
+              <div class="tray-item">
+                <span class="tray-icon">📖</span>Documentation
+              </div>
+              <div class="tray-sep"></div>
+              <div class="tray-item danger">
+                <span class="tray-icon">⏏</span>Quit typeless
+                <span class="tray-shortcut">Ctrl+Q</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label">
+          <span class="screen-label-text">2B · Tray Icon — 4 States</span>
+          <span class="screen-label-tag tag-mvp">MVP</span>
+        </div>
+        <div class="screen-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div style="text-align:center;padding:16px;background:var(--ink3);border-radius:var(--rad);border:1px solid var(--line);">
+              <div style="font-size:32px;margin-bottom:8px;">🎙</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--t2);font-weight:600;">IDLE</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:4px;">Static. Dim.</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:var(--r-lo);border-radius:var(--rad);border:1px solid var(--r-mid);">
+              <div style="font-size:32px;margin-bottom:8px;animation:bounce .6s ease-in-out infinite alternate;">🔴</div>
+              <style>@keyframes bounce{from{transform:scale(1)}to{transform:scale(1.1)}}</style>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--r);font-weight:600;">RECORDING</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:4px;">Red pulse.</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:var(--a-lo);border-radius:var(--rad);border:1px solid var(--a-mid);">
+              <div style="font-size:32px;margin-bottom:8px;">⚡</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--a);font-weight:600;">PROCESSING</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:4px;">Spinner. Blue.</div>
+            </div>
+            <div style="text-align:center;padding:16px;background:var(--am-lo);border-radius:var(--rad);border:1px solid rgba(255,182,39,0.3);">
+              <div style="font-size:32px;margin-bottom:8px;">⚠</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--am);font-weight:600;">ERROR</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:4px;">Amber. Click=details.</div>
+            </div>
+          </div>
+          <div class="callout info" style="margin-top:16px;">
+            <span class="callout-icon">ℹ</span>
+            <div class="callout-text"><b>Tooltip on hover</b> shows current state + last action. E.g. "typeless · last: 'meeting rescheduled' · 2m ago"</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+  SECTION 3 — ONBOARDING WIZARD
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">03</span>
+      <span class="section-title">Onboarding Wizard — First Run</span>
+      <span class="section-desc">5 steps · shown once · skippable after step 1</span>
+    </div>
+    <div class="screen-grid sg-3">
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">3A · Welcome</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body">
+          <div class="ob-progress">
+            <div class="ob-step active"></div><div class="ob-step"></div>
+            <div class="ob-step"></div><div class="ob-step"></div><div class="ob-step"></div>
+          </div>
+          <span class="ob-icon">🎙</span>
+          <div class="ob-title">Welcome to typeless</div>
+          <div class="ob-sub">Voice-to-text and AI automation for your desktop. Takes 2 minutes to set up.</div>
+          <button class="btn btn-primary btn-full">Get started →</button>
+          <div style="text-align:center;margin-top:10px;font-family:var(--mono);font-size:11px;color:var(--t3);">Already set up? <span style="color:var(--a);cursor:pointer;">Skip wizard</span></div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">3B · Choose Provider</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body">
+          <div class="ob-progress">
+            <div class="ob-step done"></div><div class="ob-step active"></div>
+            <div class="ob-step"></div><div class="ob-step"></div><div class="ob-step"></div>
+          </div>
+          <div class="ob-title" style="text-align:left;font-size:15px;margin-bottom:4px;">AI Provider</div>
+          <div class="ob-sub" style="text-align:left;font-size:12px;margin-bottom:14px;">Gemini is recommended — fastest, lowest cost, generous free tier.</div>
+          <div style="display:grid;gap:8px;margin-bottom:16px;">
+            <div class="prov-card active">
+              <div class="prov-icon">🟦</div>
+              <div class="prov-info"><div class="prov-name">Gemini</div><div class="prov-model">gemini-2.0-flash</div><div class="prov-default">RECOMMENDED</div></div>
+              <div class="prov-check">✓</div>
+            </div>
+            <div class="prov-card">
+              <div class="prov-icon">⚫</div>
+              <div class="prov-info"><div class="prov-name">Grok</div><div class="prov-model">grok-2-latest</div></div>
+              <div class="prov-check"></div>
+            </div>
+            <div class="prov-card">
+              <div class="prov-icon">🟢</div>
+              <div class="prov-info"><div class="prov-name">OpenAI</div><div class="prov-model">gpt-4o-mini</div></div>
+              <div class="prov-check"></div>
+            </div>
+            <div class="prov-card">
+              <div class="prov-icon">🟠</div>
+              <div class="prov-info"><div class="prov-name">Claude</div><div class="prov-model">claude-haiku-4</div></div>
+              <div class="prov-check"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full">Next →</button>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">3C · API Key Entry</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body">
+          <div class="ob-progress">
+            <div class="ob-step done"></div><div class="ob-step done"></div>
+            <div class="ob-step active"></div><div class="ob-step"></div><div class="ob-step"></div>
+          </div>
+          <div class="ob-title" style="text-align:left;font-size:15px;margin-bottom:4px;"><span id="ob-prov-name">Gemini</span> API Key</div>
+          <div class="ob-sub" style="text-align:left;font-size:12px;margin-bottom:14px;">Get a free key at <span id="ob-prov-link" style="color:var(--a);cursor:pointer;">aistudio.google.com</span>. Stored securely in your system keychain.</div>
+          <div class="callout info" style="margin-bottom:12px;"><span class="callout-icon">ℹ</span><div class="callout-text">Env var: <span style="font-family:var(--mono);color:var(--a);" id="ob-prov-key">GEMINI_API_KEY</span></div></div>
+          <div class="form-group">
+            <label class="form-label">API Key</label>
+            <div style="position:relative;">
+              <input class="inp masked" placeholder="AIzaSy..." value="AIzaSyD••••••••••••••••••••••••">
+              <button style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--t3);cursor:pointer;font-family:var(--mono);font-size:11px;">show</button>
+            </div>
+            <div class="form-hint">Stored in OS keychain via electron-safeStorage. Never in plaintext.</div>
+          </div>
+          <div class="callout success">
+            <span class="callout-icon">✓</span>
+            <div class="callout-text"><b>Key valid</b> — Gemini API responded successfully</div>
+          </div>
+          <button class="btn btn-primary btn-full" style="margin-top:14px;">Next →</button>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">3D · Hotkey Test</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body">
+          <div class="ob-progress">
+            <div class="ob-step done"></div><div class="ob-step done"></div>
+            <div class="ob-step done"></div><div class="ob-step active"></div><div class="ob-step"></div>
+          </div>
+          <div class="ob-title" style="text-align:left;font-size:15px;margin-bottom:4px;">Test Your Hotkeys</div>
+          <div class="ob-sub" style="text-align:left;font-size:12px;margin-bottom:14px;">Try both hotkeys now. You can change them anytime in Settings.</div>
+          <div style="display:grid;gap:10px;margin-bottom:16px;">
+            <div style="background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad);padding:14px 16px;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <span class="kbd">Alt+Space</span>
+                <span style="font-size:13px;font-weight:600;color:var(--t0);">Dictate</span>
+                <div class="dot dot-ok" style="margin-left:auto;"></div>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--g);">tested ✓</span>
+              </div>
+              <div style="font-size:12px;color:var(--t2);">Hold → speak → release → text types at cursor</div>
+            </div>
+            <div style="background:var(--ink3);border:1px solid var(--am);border-radius:var(--rad);padding:14px 16px;box-shadow:0 0 0 1px rgba(255,182,39,0.1);">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                <span class="kbd">Alt+⇧+Space</span>
+                <span style="font-size:13px;font-weight:600;color:var(--t0);">Plan</span>
+                <span style="font-family:var(--mono);font-size:10px;color:var(--am);margin-left:auto;">try it now</span>
+              </div>
+              <div style="font-size:12px;color:var(--t2);">Hold → describe a task → release → AI builds steps</div>
+            </div>
+          </div>
+          <button class="btn btn-primary btn-full">Next →</button>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">3E · Workspace Setup</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body">
+          <div class="ob-progress">
+            <div class="ob-step done"></div><div class="ob-step done"></div>
+            <div class="ob-step done"></div><div class="ob-step done"></div><div class="ob-step active"></div>
+          </div>
+          <div class="ob-title" style="text-align:left;font-size:15px;margin-bottom:4px;">Workspace Folder</div>
+          <div class="ob-sub" style="text-align:left;font-size:12px;margin-bottom:14px;">Files created by typeless are saved here. This is the only folder the agent can write to by default.</div>
+          <div style="background:var(--ink3);border:1px solid var(--line2);border-radius:var(--rad-sm);padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <span style="font-size:16px;">📁</span>
+            <span style="font-family:var(--mono);font-size:12px;color:var(--t1);flex:1;">~/Documents/Typeless</span>
+            <button style="background:none;border:1px solid var(--line2);border-radius:5px;color:var(--t2);font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--mono);">Browse</button>
+          </div>
+          <div class="callout warn">
+            <span class="callout-icon">🔒</span>
+            <div class="callout-text"><b>Sandbox active.</b> System folders (C:\Windows, Program Files, .ssh) are blocked. <b>File deletion is off by default.</b> Change in Settings → Sandbox.</div>
+          </div>
+          <button class="btn btn-primary btn-full" style="margin-top:16px;">Finish setup ✓</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+  SECTION 4 — SETTINGS PANEL (all tabs)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">04</span>
+      <span class="section-title">Settings Panel — All 7 Tabs</span>
+      <span class="section-desc">680×520px window · persistent · keyboard navigable</span>
+    </div>
+
+    <!-- Settings: General -->
+    <div class="screen" style="margin-bottom:16px;">
+      <div class="screen-label"><span class="screen-label-text">4A · Settings — General</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+      <div class="screen-body none">
+        <div class="settings-layout" style="min-height:420px;">
+          <div class="settings-nav">
+            <div class="nav-item active"><span class="nav-icon">⚙</span>General</div>
+            <div class="nav-item"><span class="nav-icon">🤖</span>Providers</div>
+            <div class="nav-item"><span class="nav-icon">⌨</span>Hotkeys</div>
+            <div class="nav-item"><span class="nav-icon">🔒</span>Sandbox</div>
+            <div class="nav-item"><span class="nav-icon">🎨</span>Appearance</div>
+            <div class="nav-item"><span class="nav-icon">📊</span>Analytics</div>
+            <div class="nav-item"><span class="nav-icon">🔑</span>Credentials</div>
+          </div>
+          <div class="settings-content">
+            <div class="settings-section-title">General</div>
+            <div class="settings-section-sub">Startup, language, and behaviour settings</div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Launch at startup</div><div class="toggle-sub">Start typeless when Windows boots</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Show idle pill</div><div class="toggle-sub">Display the hotkey reminder pill on screen</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Fade pill when idle</div><div class="toggle-sub">Reduce pill opacity after 5s of no activity</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Restore focus after dictation</div><div class="toggle-sub">Return keyboard focus to original app after targeted dictation</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Sound feedback</div><div class="toggle-sub">Play subtle audio on recording start/stop</div></div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="div-line"></div>
+            <div class="sel-row">
+              <div><div class="sel-label">Transcription language</div><div class="sel-sub">Language hint for Whisper / Gemini</div></div>
+              <div class="sel-val">🇬🇧 English (en) ▾</div>
+            </div>
+            <div class="sel-row">
+              <div><div class="sel-label">HUD position</div><div class="sel-sub">Where the floating HUD appears</div></div>
+              <div class="sel-val">Bottom center ▾</div>
+            </div>
+            <div class="div-line"></div>
+            <div class="form-group">
+              <label class="form-label">Max recording length</label>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <input class="inp" style="width:70px;text-align:right;" value="60">
+                <span style="font-family:var(--mono);font-size:12px;color:var(--t2);">seconds</span>
+              </div>
+              <div class="form-hint">Hard auto-stop guard. Recording stops after this duration even if key is held.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings: Providers -->
+    <div class="screen" style="margin-bottom:16px;">
+      <div class="screen-label"><span class="screen-label-text">4B · Settings — Providers & API Keys</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+      <div class="screen-body none">
+        <div class="settings-layout" style="min-height:480px;">
+          <div class="settings-nav">
+            <div class="nav-item"><span class="nav-icon">⚙</span>General</div>
+            <div class="nav-item active"><span class="nav-icon">🤖</span>Providers</div>
+            <div class="nav-item"><span class="nav-icon">⌨</span>Hotkeys</div>
+            <div class="nav-item"><span class="nav-icon">🔒</span>Sandbox</div>
+            <div class="nav-item"><span class="nav-icon">🎨</span>Appearance</div>
+            <div class="nav-item"><span class="nav-icon">📊</span>Analytics</div>
+            <div class="nav-item"><span class="nav-icon">🔑</span>Credentials</div>
+          </div>
+          <div class="settings-content">
+            <div class="settings-section-title">AI Providers</div>
+            <div class="settings-section-sub">Select your default provider. Keys stored in OS keychain.</div>
+            <div style="display:grid;gap:10px;margin-bottom:20px;">
+              <div class="prov-card active">
+                <div class="prov-icon">🟦</div>
+                <div class="prov-info"><div class="prov-name">Gemini</div><div class="prov-model">gemini-2.0-flash</div><div class="prov-default">DEFAULT · ACTIVE</div></div>
+                <div class="prov-check">✓</div>
+              </div>
+              <div class="prov-key-row">
+                <div class="prov-key-label">GEMINI_API_KEY</div>
+                <div class="prov-key-val">AIzaSy••••••••••••••••••••</div>
+                <span class="prov-key-status ks-set">SET</span>
+                <button class="btn btn-ghost btn-sm" style="margin-left:8px;">Edit</button>
+              </div>
+              <div class="prov-card">
+                <div class="prov-icon">⚫</div>
+                <div class="prov-info"><div class="prov-name">Grok</div><div class="prov-model">grok-2-latest · xai-...</div></div>
+                <div class="prov-check"></div>
+              </div>
+              <div class="prov-key-row">
+                <div class="prov-key-label">GROK_API_KEY</div>
+                <div class="prov-key-val" style="color:var(--t3);">not set</div>
+                <span class="prov-key-status ks-unset">UNSET</span>
+                <button class="btn btn-ghost btn-sm" style="margin-left:8px;">Add</button>
+              </div>
+              <div class="prov-card">
+                <div class="prov-icon">🟢</div>
+                <div class="prov-info"><div class="prov-name">OpenAI</div><div class="prov-model">gpt-4o-mini</div></div>
+                <div class="prov-check"></div>
+              </div>
+              <div class="prov-card">
+                <div class="prov-icon">🟠</div>
+                <div class="prov-info"><div class="prov-name">Claude</div><div class="prov-model">claude-haiku-4</div></div>
+                <div class="prov-check"></div>
+              </div>
+            </div>
+            <div class="div-line"></div>
+            <div class="sel-row">
+              <div><div class="sel-label">Planning model</div><div class="sel-sub">Model used for task plan generation</div></div>
+              <div class="sel-val">gemini-2.0-flash ▾</div>
+            </div>
+            <div class="sel-row">
+              <div><div class="sel-label">Transcription model</div><div class="sel-sub">Provider/model used for voice transcription</div></div>
+              <div class="sel-val">gemini-2.0-flash ▾</div>
+            </div>
+            <div class="sel-row">
+              <div><div class="sel-label">Planning model</div><div class="sel-sub">Model used for task plan generation</div></div>
+              <div class="sel-val">gemini-2.0-flash ▾</div>
+            </div>
+            <div class="sel-row">
+              <div><div class="sel-label">Vision model</div><div class="sel-sub">Model used for screen reading (addon)</div></div>
+              <div class="sel-val">gemini-2.0-flash ▾</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings: Hotkeys -->
+    <div class="screen" style="margin-bottom:16px;">
+      <div class="screen-label"><span class="screen-label-text">4C · Settings — Hotkeys</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+      <div class="screen-body none">
+        <div class="settings-layout" style="min-height:360px;">
+          <div class="settings-nav">
+            <div class="nav-item"><span class="nav-icon">⚙</span>General</div>
+            <div class="nav-item"><span class="nav-icon">🤖</span>Providers</div>
+            <div class="nav-item active"><span class="nav-icon">⌨</span>Hotkeys</div>
+            <div class="nav-item"><span class="nav-icon">🔒</span>Sandbox</div>
+            <div class="nav-item"><span class="nav-icon">🎨</span>Appearance</div>
+            <div class="nav-item"><span class="nav-icon">📊</span>Analytics</div>
+            <div class="nav-item"><span class="nav-icon">🔑</span>Credentials</div>
+          </div>
+          <div class="settings-content">
+            <div class="settings-section-title">Hotkeys</div>
+            <div class="settings-section-sub">Click a hotkey box and press your desired combination to remap.</div>
+            <div style="display:grid;gap:14px;">
+              <div class="form-group">
+                <label class="form-label">Dictate — type at cursor</label>
+                <div class="hotkey-box">
+                  <div class="hotkey-keys"><span class="kbd">Alt</span><span style="color:var(--t3);font-size:12px;">+</span><span class="kbd">Space</span></div>
+                  <div class="hotkey-hint">click to change</div>
+                </div>
+                <div class="form-hint">Hold to record. Release to transcribe and type instantly.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Plan — build & execute</label>
+                <div class="hotkey-box">
+                  <div class="hotkey-keys"><span class="kbd">Alt</span><span style="color:var(--t3);font-size:12px;">+</span><span class="kbd">⇧</span><span style="color:var(--t3);font-size:12px;">+</span><span class="kbd">Space</span></div>
+                  <div class="hotkey-hint">click to change</div>
+                </div>
+                <div class="form-hint">Hold to record. Release to build an AI plan.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Abort / Cancel</label>
+                <div class="hotkey-box">
+                  <div class="hotkey-keys"><span class="kbd">Alt</span><span style="color:var(--t3);font-size:12px;">+</span><span class="kbd">⇧</span><span style="color:var(--t3);font-size:12px;">+</span><span class="kbd">Escape</span></div>
+                  <div class="hotkey-hint">click to change</div>
+                </div>
+                <div class="form-hint">Cancels recording, transcription, planning, or execution.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Undo last action</label>
+                <div class="hotkey-box">
+                  <div class="hotkey-keys"><span class="kbd">Alt</span><span style="color:var(--t3);font-size:12px;">+</span><span class="kbd">Z</span></div>
+                  <div class="hotkey-hint">click to change</div>
+                </div>
+                <div class="form-hint">Undoes the last typed text or executed step. <b>Note:</b> only active for 10s after an action — not a permanent global shortcut.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings: Sandbox -->
+    <div class="screen" style="margin-bottom:16px;">
+      <div class="screen-label"><span class="screen-label-text">4D · Settings — Sandbox (Security)</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+      <div class="screen-body none">
+        <div class="settings-layout" style="min-height:520px;">
+          <div class="settings-nav">
+            <div class="nav-item"><span class="nav-icon">⚙</span>General</div>
+            <div class="nav-item"><span class="nav-icon">🤖</span>Providers</div>
+            <div class="nav-item"><span class="nav-icon">⌨</span>Hotkeys</div>
+            <div class="nav-item active"><span class="nav-icon">🔒</span>Sandbox</div>
+            <div class="nav-item"><span class="nav-icon">🎨</span>Appearance</div>
+            <div class="nav-item"><span class="nav-icon">📊</span>Analytics</div>
+            <div class="nav-item"><span class="nav-icon">🔑</span>Credentials</div>
+          </div>
+          <div class="settings-content">
+            <div class="settings-section-title">Sandbox</div>
+            <div class="settings-section-sub">Controls what the agent can read, write, and run.</div>
+            <div class="form-group">
+              <label class="form-label">📂 Allowed Write Paths</label>
+              <div class="path-row"><span class="path-icon">📁</span><span class="path-text">~/Documents/Typeless</span><span style="font-family:var(--mono);font-size:10px;color:var(--g);margin-left:auto;">workspace</span><button class="path-remove">×</button></div>
+              <button style="background:none;border:1px dashed var(--line2);border-radius:var(--rad-sm);color:var(--t3);font-size:12px;padding:7px 14px;cursor:pointer;width:100%;font-family:var(--mono);">+ Add write path</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">📖 Allowed Read Paths</label>
+              <div class="path-row"><span class="path-icon">📁</span><span class="path-text">~/Documents/Typeless</span><button class="path-remove">×</button></div>
+              <div class="path-row"><span class="path-icon">📁</span><span class="path-text">~/Desktop</span><button class="path-remove">×</button></div>
+              <button style="background:none;border:1px dashed var(--line2);border-radius:var(--rad-sm);color:var(--t3);font-size:12px;padding:7px 14px;cursor:pointer;width:100%;font-family:var(--mono);">+ Add read path</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">⚡ Allowed Commands</label>
+              <div class="cmd-row"><div class="cmd-name">git</div><div class="cmd-path">C:\Program Files\Git\bin\git.exe</div><div class="cmd-scope">projects/</div><button class="path-remove">×</button></div>
+              <button style="background:none;border:1px dashed var(--line2);border-radius:var(--rad-sm);color:var(--t3);font-size:12px;padding:7px 14px;cursor:pointer;width:100%;font-family:var(--mono);">+ Add allowed command</button>
+            </div>
+            <div class="form-group">
+              <label class="form-label">🔇 Sensitive Context Apps</label>
+              <div class="form-hint" style="margin-bottom:8px;">Cloud API calls (screenshots, vision) are always blocked when these apps are in focus.</div>
+              <button style="background:none;border:1px dashed var(--line2);border-radius:var(--rad-sm);color:var(--t3);font-size:12px;padding:7px 14px;cursor:pointer;width:100%;font-family:var(--mono);">+ Add app name (e.g. KeePass, 1Password)</button>
+            </div>
+            <div class="danger-zone">
+              <div class="danger-title">⚠ Dangerous Operations — OFF by default</div>
+              <div class="toggle-row" style="padding:8px 0;">
+                <div class="toggle-info"><div class="toggle-label" style="font-size:12px;">Allow file deletion</div></div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row" style="padding:8px 0;">
+                <div class="toggle-info"><div class="toggle-label" style="font-size:12px;">Allow shell command execution</div></div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row" style="padding:8px 0;border:none;">
+                <div class="toggle-info"><div class="toggle-label" style="font-size:12px;">Allow overwriting existing files</div></div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings: Analytics -->
+    <div class="screen">
+      <div class="screen-label"><span class="screen-label-text">4E · Settings — Analytics & Logging</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+      <div class="screen-body none">
+        <div class="settings-layout" style="min-height:380px;">
+          <div class="settings-nav">
+            <div class="nav-item"><span class="nav-icon">⚙</span>General</div>
+            <div class="nav-item"><span class="nav-icon">🤖</span>Providers</div>
+            <div class="nav-item"><span class="nav-icon">⌨</span>Hotkeys</div>
+            <div class="nav-item"><span class="nav-icon">🔒</span>Sandbox</div>
+            <div class="nav-item"><span class="nav-icon">🎨</span>Appearance</div>
+            <div class="nav-item active"><span class="nav-icon">📊</span>Analytics</div>
+            <div class="nav-item"><span class="nav-icon">🔑</span>Credentials</div>
+          </div>
+          <div class="settings-content">
+            <div class="settings-section-title">Analytics & Logging</div>
+            <div class="settings-section-sub">All analytics are opt-in. Audio and text content is never logged.</div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Local analytics log</div><div class="toggle-sub">Write usage events to local JSONL file (no network)</div></div>
+              <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="toggle-info"><div class="toggle-label">Send anonymous telemetry</div><div class="toggle-sub">Help improve typeless — no audio, text, or keys ever sent</div></div>
+              <div class="toggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+            <div class="div-line"></div>
+            <div class="sel-row">
+              <div><div class="sel-label">Log retention</div><div class="sel-sub">Delete local analytics files older than</div></div>
+              <div class="sel-val">30 days ▾</div>
+            </div>
+            <div class="sel-row">
+              <div><div class="sel-label">Log level</div><div class="sel-sub">Operational log verbosity</div></div>
+              <div class="sel-val">info ▾</div>
+            </div>
+            <div class="div-line"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-ghost btn-sm">📂 Open log folder</button>
+              <button class="btn btn-ghost btn-sm">🗑 Clear analytics</button>
+              <button class="btn btn-ghost btn-sm">📤 Export logs</button>
+            </div>
+            <div class="callout info" style="margin-top:14px;">
+              <span class="callout-icon">🔒</span>
+              <div class="callout-text"><b>Never logged:</b> audio, transcribed text, typed text, screenshots, API keys, or credential values — ever.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Settings: Credentials -->
+    <div class="screen">
+      <div class="screen-label"><span class="screen-label-text">4F · Settings — Credentials (Vault)</span><span class="screen-label-tag tag-addon">ADDON</span></div>
+      <div class="screen-body none">
+        <div class="settings-layout" style="min-height:380px;">
+          <div class="settings-nav">
+            <div class="nav-item"><span class="nav-icon">⚙</span>General</div>
+            <div class="nav-item"><span class="nav-icon">🤖</span>Providers</div>
+            <div class="nav-item"><span class="nav-icon">⌨</span>Hotkeys</div>
+            <div class="nav-item"><span class="nav-icon">🔒</span>Sandbox</div>
+            <div class="nav-item"><span class="nav-icon">🎨</span>Appearance</div>
+            <div class="nav-item"><span class="nav-icon">📊</span>Analytics</div>
+            <div class="nav-item active"><span class="nav-icon">🔑</span>Credentials</div>
+          </div>
+          <div class="settings-content">
+            <div class="settings-section-title">Credentials</div>
+            <div class="settings-section-sub">Named secrets for use with <code>typeSecret</code> steps. Values stored in OS keychain — never shown.</div>
+            <div style="display:grid;gap:8px;margin-bottom:16px;">
+              <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:var(--ink3);border-radius:var(--rad-sm);padding:10px 14px;border:1px solid var(--line2);">
+                <div>
+                  <div style="font-family:var(--mono);font-size:12px;color:var(--t1);">work-password</div>
+                  <div style="font-family:var(--mono);font-size:10px;color:var(--t3);">stored in OS keychain · last updated 3d ago</div>
+                </div>
+                <span class="chip chip-g">SET</span>
+                <button class="btn btn-danger btn-sm">Delete</button>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;background:var(--ink3);border-radius:var(--rad-sm);padding:10px 14px;border:1px solid var(--line2);">
+                <div>
+                  <div style="font-family:var(--mono);font-size:12px;color:var(--t1);">vpn-pin</div>
+                  <div style="font-family:var(--mono);font-size:10px;color:var(--t3);">stored in OS keychain · last updated 1w ago</div>
+                </div>
+                <span class="chip chip-g">SET</span>
+                <button class="btn btn-danger btn-sm">Delete</button>
+              </div>
+            </div>
+            <div class="div-line"></div>
+            <div class="settings-section-sub" style="margin-bottom:10px;">Add a new credential</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Name</label>
+                <input class="inp" placeholder="e.g. work-password">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Value</label>
+                <input class="inp masked" placeholder="••••••••" type="password">
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm">Store credential</button>
+            <div class="callout info" style="margin-top:14px;">
+              <span class="callout-icon">🔒</span>
+              <div class="callout-text">Values are stored via <b>keytar</b> (OS keychain). They are <b>never shown</b>, <b>never logged</b>, and never stored in app.config.json or .env.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+  SECTION 5 — PANELS (Window Picker, History)
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">05</span>
+      <span class="section-title">Panels — Window Picker & History</span>
+    </div>
+    <div class="screen-grid sg-2">
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">5A · Window Picker</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body none">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;">
+            <span style="font-size:14px;color:var(--t3);">🔍</span>
+            <input class="inp" style="border:none;background:transparent;padding:0;font-size:13px;" placeholder="Search windows…" value="Sl">
+          </div>
+          <div style="padding:8px 0;">
+            <div style="padding:4px 14px;font-family:var(--mono);font-size:10px;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;">Open Windows</div>
+            <div class="win-item active">
+              <div class="win-icon">💬</div>
+              <div><div class="win-title">Slack — Acme Corp</div><div style="font-family:var(--mono);font-size:10px;color:var(--t3);">slack.exe</div></div>
+              <div class="chip chip-a">selected</div>
+            </div>
+            <div class="win-item">
+              <div class="win-icon">📧</div>
+              <div><div class="win-title">Outlook — Inbox</div><div style="font-family:var(--mono);font-size:10px;color:var(--t3);">outlook.exe</div></div>
+              <div class="win-pid">pid 4821</div>
+            </div>
+            <div class="win-item">
+              <div class="win-icon">🌐</div>
+              <div><div class="win-title">Chrome — GitHub</div><div style="font-family:var(--mono);font-size:10px;color:var(--t3);">chrome.exe</div></div>
+              <div class="win-pid">pid 3920</div>
+            </div>
+          </div>
+          <div style="padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:8px;">
+            <button class="btn btn-primary btn-sm">Select window</button>
+            <button class="btn btn-ghost btn-sm">Cancel</button>
+            <button class="btn btn-ghost btn-sm" style="margin-left:auto;">📌 Pin</button>
+          </div>
+          <div class="ann" style="padding:8px 14px;border-top:1px solid var(--line);">After selecting, all dictation goes to this window's input until cleared.</div>
+          <div style="padding:8px 14px;background:var(--a-lo);border-top:1px solid var(--a-mid);display:flex;align-items:center;gap:8px;">
+            <span style="font-size:12px;">📌</span>
+            <span style="font-family:var(--mono);font-size:11px;color:var(--a);">Pinned: Slack — Acme Corp</span>
+            <button style="margin-left:auto;background:none;border:1px solid var(--a-mid);border-radius:4px;color:var(--t2);font-size:11px;padding:2px 8px;cursor:pointer;font-family:var(--mono);">Unpin ×</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">5B · History Panel</span><span class="screen-label-tag tag-mvp">MVP</span></div>
+        <div class="screen-body none">
+          <div style="padding:10px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:14px;font-weight:600;color:var(--t0);">History</span>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm">Clear</button>
+            </div>
+          </div>
+          <div>
+            <div class="hist-item">
+              <div class="hist-time">2m ago</div>
+              <div class="hist-text">"reschedule the meeting with David to Thursday 3pm"</div>
+              <div class="hist-mode"><div class="chip chip-a">dictate</div><span style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:4px;" title="re-types at cursor">↩</span></div>
+            </div>
+            <div class="hist-item">
+              <div class="hist-time">14m ago</div>
+              <div class="hist-text">"open Slack and tell the team the build passed"</div>
+              <div class="hist-mode"><div class="chip chip-g">plan</div><span style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-left:4px;" title="opens plan preview">▶</span></div>
+            </div>
+            <div class="hist-item">
+              <div class="hist-time">1h ago</div>
+              <div class="hist-text">"the quarterly review is on Friday at 2pm in the boardroom"</div>
+              <div class="hist-mode"><div class="chip chip-a">dictate</div></div>
+            </div>
+            <div class="hist-item">
+              <div class="hist-time">2h ago</div>
+              <div class="hist-text">"search for Node.js 20 release notes and summarise"</div>
+              <div class="hist-mode"><div class="chip chip-g">plan</div></div>
+            </div>
+            <div class="hist-item" style="opacity:0.5;">
+              <div class="hist-time">3h ago</div>
+              <div class="hist-text">[transcription failed — API timeout]</div>
+              <div class="hist-mode"><div class="chip chip-r">error</div></div>
+            </div>
+          </div>
+          <div class="ann" style="padding:8px 14px;border-top:1px solid var(--line);">Click to re-use. <b>Dictate items</b>: re-types at cursor immediately. <b>Plan items</b>: opens plan preview (not auto-execute). Mode badge shows type.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+  SECTION 6 — DESIGN TOKENS
+  ══════════════════════════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-head">
+      <span class="section-num">06</span>
+      <span class="section-title">Design Tokens — Colours, Typography, Spacing</span>
+    </div>
+    <div class="screen-grid sg-2">
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">6A · Colour System</span></div>
+        <div class="screen-body">
+          <div style="display:grid;gap:8px;">
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;">
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#07070F;border:1px solid var(--line);"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">ink</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#131326;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">ink2</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#1A1A32;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">ink3</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#2C2C52;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">ink5</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#2A2A4A;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">line</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#363660;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">line2</div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;">
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#3D8EFF;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">accent (a)</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#00D68F;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">green (g)</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#FF4757;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">red (r)</div>
+              </div>
+              <div style="text-align:center;">
+                <div style="height:36px;border-radius:6px;background:#FFB627;"></div>
+                <div style="font-family:var(--mono);font-size:9px;color:var(--t3);margin-top:4px;">amber (am)</div>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <div style="font-family:var(--mono);font-size:10px;color:var(--t3);margin-bottom:6px;letter-spacing:0.1em;text-transform:uppercase;">Colour roles</div>
+              <div style="font-size:12px;color:var(--t2);line-height:2;">
+                <b style="color:var(--a);">Blue</b> — dictate mode, primary action, links<br>
+                <b style="color:var(--am);">Amber</b> — plan mode, warnings<br>
+                <b style="color:var(--g);">Green</b> — success, plan ready, done<br>
+                <b style="color:var(--r);">Red</b> — recording dot, errors, danger zone<br>
+                <b style="color:var(--p);">Purple</b> — executing / in-progress
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen">
+        <div class="screen-label"><span class="screen-label-text">6B · Typography & Components</span></div>
+        <div class="screen-body">
+          <div style="margin-bottom:16px;">
+            <div style="font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:var(--t0);letter-spacing:-0.02em;">Outfit 800</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:600;color:var(--t1);">Outfit 600 — headings, labels</div>
+            <div style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:400;color:var(--t2);">Outfit 400 — body text, descriptions</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--t2);margin-top:6px;">JetBrains Mono — code, hotkeys, metadata</div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);">JetBrains Mono 300 italic — hints, annotations</div>
+          </div>
+          <div class="div-line"></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <span class="kbd">Alt+Space</span>
+            <span class="kbd">⇧</span>
+            <span class="kbd">Esc</span>
+            <div class="chip chip-a">dictate</div>
+            <div class="chip chip-g">plan</div>
+            <div class="chip chip-r">error</div>
+            <div class="chip chip-am">warning</div>
+            <div class="chip chip-p">running</div>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            <button class="btn btn-primary btn-sm">Primary</button>
+            <button class="btn btn-ghost btn-sm">Ghost</button>
+            <button class="btn btn-success btn-sm">Success</button>
+            <button class="btn btn-danger btn-sm">Danger</button>
+            <button class="btn btn-plan btn-sm">Plan</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div style="border-top:1px solid var(--line);padding-top:28px;display:flex;justify-content:space-between;align-items:center;margin-top:40px;">
+    <div style="font-family:var(--mono);font-size:11px;color:var(--t3);">typeless · UI/UX Design System v2.0 · Gap-Fixed</div>
+    <div style="display:flex;gap:16px;">
+      <span class="chip chip-a">29 screens designed</span>
+      <span class="chip chip-g">19 issues resolved</span>
+      <span class="chip chip-am">Gemini default</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

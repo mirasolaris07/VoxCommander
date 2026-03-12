@@ -1,0 +1,65 @@
+# ── Secrets — NEVER commit ───────────────────────────────────────────────────
+.env
+src/.env
+*.env
+!*.env.example
+
+# ── Node / Electron ───────────────────────────────────────────────────────────
+node_modules/
+src/node_modules/
+dist/
+out/
+.webpack/
+
+# ── Electron build outputs ────────────────────────────────────────────────────
+build/
+release/
+*.dmg
+*.exe
+*.deb
+*.rpm
+*.AppImage
+
+# ── Runtime state (never version-controlled) ─────────────────────────────────
+src/config/runtime.store.json
+config/runtime.store.json
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+src/logs/
+analytics.jsonl
+
+# ── Python / pipeline ─────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# ── Coverage ──────────────────────────────────────────────────────────────────
+coverage/
+.nyc_output/
+htmlcov/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor ───────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.orig
+
+# ── Temp / build artifacts ────────────────────────────────────────────────────
+*.tmp
+*.bak
+*.backup-*.json
+
+# ── Development / pipeline internals (not for public repo) ───────────────────
+CLAUDE.md
+docs/
+tests/
